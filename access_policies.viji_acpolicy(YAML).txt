@@ -1,0 +1,30 @@
+access_policies.viji_acpolicy:
+  defaultAction: 'local:access_policy_default_action.block'
+  name: 'EVE_AC_Policy_AppID'
+  rules:
+    - "local:access_rules.eve_access_rule_AppID"
+  advanced: 'local:advanced_access_policy.advanced_tab_AppID'
+advanced_access_policy.advanced_tab_AppID:
+  eve_setting: 'local:eve_setting.enable_all_the_combinations'
+access_rules.eve_access_rule_AppID:
+  action: "ALLOW"
+  enabled: true
+  name: "eve_access_rule_with_appid"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+
+
+access_policy_default_action.block:
+  action: 'BLOCK'
+  logging: 'local:logging.simple_logging'
+
+###### EVE enable Configs ######
+eve_setting.enable_all_the_combinations:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  showTLSStringInConnEvents: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 90
