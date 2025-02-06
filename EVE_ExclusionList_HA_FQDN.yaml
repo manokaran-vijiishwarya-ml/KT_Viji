@@ -1,0 +1,2199 @@
+inline_set.test_rest_inlineset:
+  name: 'my_rest_inlineset'
+  mtu: 1500
+########################################################################################################################
+git_info:
+  clone_url: 'https://bitbucket-eng-bgl1.cisco.com/bitbucket/scm/ftd_test_bgl/eve_test_pcaps.git'
+  clone_branch: 'master'
+########################################################################################################################
+#Default cleanup access policy+
+access_policies.cleanup_acpolicy:
+  name: 'cleanup_acpolicy'
+  defaultAction: 'local:access_policy_default_action.block'
+
+access_policy_default_action.block:
+  action: 'BLOCK'
+
+########################################################################################################################
+# Platform Settnigs
+platform_settings_policy.create:
+  description: 'Private API Platform Settings'
+  name: 'Pvi Platform Settings'
+  validateOnly: False
+  dns: 'local:platform_settings_dns.create'
+  time_synchronization: 'local:platform_settings_time_synchronization.create'
+
+platform_settings_dns.create:
+  FTDEnableDnsNameResolution: true
+  MultiDNSServerGroupsTable: [ 'local:multi_dns_server_group_table.table_1' ]
+  FTDDnsServerGroupExpireTimer: 5
+  FTDDnsServerGroupPollTimer: 2
+  FTDDnsDiagnosticInterface: true
+
+multi_dns_server_group_table.table_1:
+  MultiDnsServerGroupName: 'local:dns_server_group_object.create'
+  IsDefaultDNSServerGroup: true
+
+platform_settings_time_synchronization.create:
+  NGFWTimeSynchMode: true
+  NGFWTimeSynchNTPServers: '10.64.58.51'
+
+dns_server_group_object.create:
+  name: "Test_dns_server_group"
+  timeout: 3
+  dnsservers: [172.16.1.43]
+  retries: 3
+##############################################################################################################################################################################
+# Access Policy FQDN4 without DNS
+access_policies.EVE_exempt_fqdnv4_policy_no_dns:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_fqdnv4_Policy_no_DNS'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_fqdnv4_no_dns'
+  rules:
+    - 'local:access_rules.rule_action_fqdnv4_ALLOW_ALL_no_dns'
+
+access_rules.rule_action_fqdnv4_ALLOW_ALL_no_dns:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+advanced_access_policy.advanced_tab_eve_exempt_fqdnv4_no_dns:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_no_dns'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_no_dns:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 90
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRulefqdnv4_no_dns"
+
+eve_exception_rule_list.eveExceptionRulefqdnv4_no_dns:
+  destinationNetwork: "local:rule_networks_fragment.dest_fqdnv4_no_dns"
+  comments: "network object"
+
+rule_networks_fragment.dest_fqdnv4_no_dns:
+  objects:
+    - 'local:networks.dest_fqdnv4_host_object_no_dns'
+
+networks.dest_fqdnv4_host_object_no_dns:
+  name: 'dest_nw_fqdn_obj_172_no_dns'
+  type: "FQDN"
+  dnsResolution: "IPV4_ONLY"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+##############################################################################################################################################################################################
+access_policies.EVE_exempt_fqdnv4_policy_invalid_domain:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_fqdnv4_Policy_invalid_domain'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_fqdnv4_invalid_domain'
+  rules:
+    - 'local:access_rules.rule_action_fqdnv4_ALLOW_ALL_invalid_domain'
+
+access_rules.rule_action_fqdnv4_ALLOW_ALL_invalid_domain:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+advanced_access_policy.advanced_tab_eve_exempt_fqdnv4_invalid_domain:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_invalid_domain'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_invalid_domain:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 90
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRulefqdnv4_invalid_domain"
+
+eve_exception_rule_list.eveExceptionRulefqdnv4_invalid_domain:
+  destinationNetwork: "local:rule_networks_fragment.dest_fqdnv4_invalid_domain"
+  comments: "network object"
+
+rule_networks_fragment.dest_fqdnv4_invalid_domain:
+  objects:
+    - 'local:networks.dest_fqdnv4_host_object_invalid_domain'
+
+networks.dest_fqdnv4_host_object_invalid_domain:
+  name: 'dest_nw_fqdn_obj_172_invalid_domain'
+  type: "FQDN"
+  dnsResolution: "IPV4_ONLY"
+  value: "test-1.media.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+##############################################################################################################################################################################
+# Access Policy FQDN4 DNS not reachable
+access_policies.EVE_exempt_fqdnv4_policy_not_reachable:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_fqdnv4_Policy_not_reachable'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_fqdnv4_not_reachable'
+  rules:
+    - 'local:access_rules.rule_action_fqdnv4_ALLOW_ALL_not_reachable'
+
+access_rules.rule_action_fqdnv4_ALLOW_ALL_not_reachable:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+advanced_access_policy.advanced_tab_eve_exempt_fqdnv4_not_reachable:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_not_reachable'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_not_reachable:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 90
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRulefqdnv4_not_reachable"
+
+eve_exception_rule_list.eveExceptionRulefqdnv4_not_reachable:
+  destinationNetwork: "local:rule_networks_fragment.dest_fqdnv4_not_reachable"
+  comments: "network object"
+
+rule_networks_fragment.dest_fqdnv4_not_reachable:
+  objects:
+    - 'local:networks.dest_fqdnv4_host_object_not_reachable'
+
+networks.dest_fqdnv4_host_object_not_reachable:
+  name: 'dest_nw_fqdn_obj_172_not_reachable'
+  type: "FQDN"
+  dnsResolution: "IPV4_ONLY"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+###############################################################################################################################################################################
+# Access Policy FQDN4
+access_policies.EVE_exempt_fqdnv4_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_fqdnv4_Policy'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_fqdnv4'
+  rules:
+    - 'local:access_rules.rule_action_fqdnv4_ALLOW_ALL'
+
+access_rules.rule_action_fqdnv4_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+advanced_access_policy.advanced_tab_eve_exempt_fqdnv4:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 90
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRulefqdnv4"
+
+eve_exception_rule_list.eveExceptionRulefqdnv4:
+  destinationNetwork: "local:rule_networks_fragment.dest_fqdnv4"
+  comments: "network object"
+
+rule_networks_fragment.dest_fqdnv4:
+  objects:
+    - 'local:networks.dest_fqdnv4_host_object'
+
+networks.dest_fqdnv4_host_object:
+  name: 'dest_nw_fqdn_obj_172'
+  type: "FQDN"
+  dnsResolution: "IPV4_ONLY"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+########################################################################################################################################################################################
+# Access Policy FQDNv6
+access_policies.EVE_exempt_fqdnv6_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_fqdnv6_Policy'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_fqdnv6'
+  rules:
+    - 'local:access_rules.rule_action_fqdnv6_ALLOW_ALL'
+
+#Access policy
+access_rules.rule_action_fqdnv6_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+advanced_access_policy.advanced_tab_eve_exempt_fqdnv6:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv6'
+  eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv6:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 35
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRulefqdnv6"
+
+eve_exception_rule_list.eveExceptionRulefqdnv6:
+  destinationNetwork: "local:rule_networks_fragment.dest_fqdnv6"
+  comments: "network object"
+
+rule_networks_fragment.dest_fqdnv6:
+  objects:
+    - 'local:networks.dest_fqdnv6_host_object'
+
+networks.dest_fqdnv6_host_object:
+  name: 'dest_nw_fqdnv6_obj_172'
+  type: "FQDN"
+  dnsResolution: "IPV6_ONLY"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+##############################################################################################################################################################################################
+# Access Policy FQDNv4v6
+access_policies.EVE_exempt_fqdnv4v6_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_fqdnv4v6_Policy'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_fqdnv4v6'
+  rules:
+    - 'local:access_rules.rule_action_fqdnv4v6_ALLOW_ALL'
+
+access_rules.rule_action_fqdnv4v6_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+advanced_access_policy.advanced_tab_eve_exempt_fqdnv4v6:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4v6'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4v6:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 90
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRulefqdnv4v6"
+
+eve_exception_rule_list.eveExceptionRulefqdnv4v6:
+  destinationNetwork: "local:rule_networks_fragment.dest_fqdnv4v6"
+  comments: "network object"
+
+rule_networks_fragment.dest_fqdnv4v6:
+  objects:
+    - 'local:networks.dest_fqdnv4v6_host_object'
+
+networks.dest_fqdnv4v6_host_object:
+  name: 'dest_nw_fqdnv4v6_obj_172'
+  type: "FQDN"
+  dnsResolution: "IPV4_AND_IPV6"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+#######################################################################################################################################################################
+# Data Purge
+purge.data_purge:
+  rna_flow_stats: true
+  rna_flow_stats_prioritized: true
+  flow_chunk: true
+  rna_event: true
+  rna_ip_host: false
+  rua_event: true
+  user_identities: false
+
+logging.simple_logging:
+  beginning: 1
+  dc: 1
+  end: 1
+
+################## AC Policy With SSl Policy and quic #####################################################################################################
+#Access policy with QUIC
+access_policies.EVE_exempt_fqdn_quic_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_fqdn_quic_Policy'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_fqdn_quic'
+  rules:
+    - 'local:access_rules.rule_action_fqdnv4v6_ALLOW_ALL'
+
+advanced_access_policy.advanced_tab_eve_exempt_fqdn_quic:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_fqdn_quic'
+  ssl_policy_settings: 'local:ssl_policy_settings.ssl_policy_settings'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_fqdn_quic:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 35
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRulefqdnQuic"
+
+eve_exception_rule_list.eveExceptionRulefqdnQuic:
+  destinationNetwork: "local:rule_networks_fragment.dest_fqdnQuic"
+  comments: "network object"
+
+rule_networks_fragment.dest_fqdnQuic:
+  objects:
+    - 'local:networks.dest_fqdn_quic_host_object'
+
+networks.dest_fqdn_quic_host_object:
+  name: 'dest_nw_fqdn_quic_obj_172_quic'
+  type: "FQDN"
+  dnsResolution: "IPV4_AND_IPV6"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+ssl_policy_settings.ssl_policy_settings:
+  sslPolicy: 'local:ssl_policy.ssl_policy'
+
+ssl_policy.ssl_policy:
+  name: 'Exclusion_ssl_policy'
+  description: 'SSL policy created via automation'
+  encryption: 'do_not_decrypt'
+  rules: ['local:ssl_rule.ssl_rule']
+  logging: 'local:logging.ssl_policy_log_end_of_connection'
+  advanced_options: 'local:ssl_advanced_options.quic_enable'
+
+
+ssl_rule.ssl_rule:
+  name: 'mitre_ssl_rule'
+  action: 'decrypt_resign'
+  decryption_certs: [ 'local:internal_ca_generate_certificate.generated_internal_ca' ]
+  logging: 'local:logging.ssl_policy_log_end_of_connection'
+
+logging.ssl_policy_log_end_of_connection:
+  end: 1
+  dc: 1
+
+internal_ca_generate_certificate.generated_internal_ca:
+  name: 'MitreSelfSignedCA'
+  description: 'Internal CA created by automation'
+  type: 'PKI_InternalCA'
+  subject_country: 'US'
+  subject_state: 'TX'
+  subject_locality: 'Austin'
+  subject_org: 'Cisco'
+  subject_ou: 'QA'
+  subject_cn: 'Test'
+  imported: '1'
+
+ssl_advanced_options.quic_enable:
+  quic_decryption: True
+###################################################################################################################################################
+# Access Policy with SSL
+access_policies.EVE_exempt_fqdn_ssl_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_fqdn_ssl_Policy'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_fqdn_ssl'
+  rules:
+    - 'local:access_rules.rule_action_ssl_ALLOW_ALL'
+
+access_rules.rule_action_ssl_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+advanced_access_policy.advanced_tab_eve_exempt_fqdn_ssl:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_fqdn_ssl'
+  ssl_policy_settings: 'local:ssl_policy_settings.fqdn_ssl_policy_settings'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_fqdn_ssl:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 35
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRulefqdnSsl"
+
+eve_exception_rule_list.eveExceptionRulefqdnSsl:
+  destinationNetwork: "local:rule_networks_fragment.dest_fqdnSsl"
+  comments: "network object"
+
+rule_networks_fragment.dest_fqdnSsl:
+  objects:
+    - 'local:networks.dest_fqdn_ssl_host_object'
+
+networks.dest_fqdn_ssl_host_object:
+  name: 'dest_nw_fqdn_ssl_obj_172'
+  type: "FQDN"
+  dnsResolution: "IPV4_AND_IPV6"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+## SSL
+ssl_policy_settings.fqdn_ssl_policy_settings:
+  sslPolicy: 'local:ssl_policy.fqdn_ssl_policy'
+
+ssl_policy.fqdn_ssl_policy:
+  name: 'Exclusion_fqdn_ssl_policy'
+  description: 'SSL policy created via automation'
+  encryption: 'do_not_decrypt'
+  rules: ['local:ssl_rule.fqdn_ssl_rule']
+  logging: 'local:logging.fqdn_ssl_policy_log_end_of_connection'
+
+ssl_rule.fqdn_ssl_rule:
+  name: 'fqdn_ssl_rule'
+  action: 'decrypt_resign'
+  decryption_certs: [ 'local:internal_ca_generate_certificate.generated_internal_fqdn_ca' ]
+  logging: 'local:logging.fqdn_ssl_policy_log_end_of_connection'
+
+internal_ca_generate_certificate.generated_internal_fqdn_ca:
+  name: 'fqdnSelfSignedCA'
+  description: 'Internal CA created by automation'
+  type: 'PKI_InternalCA'
+  subject_country: 'US'
+  subject_state: 'TX'
+  subject_locality: 'Austin'
+  subject_org: 'Cisco'
+  subject_ou: 'QA'
+  subject_cn: 'Test'
+  imported: '1'
+
+logging.fqdn_ssl_policy_log_end_of_connection:
+  end: 1
+  dc: 1
+
+################## AC Policy With SSl Policy and tsid #####################################################################################################
+#Access policy with tsid
+access_policies.EVE_exempt_fqdn_tsid_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_fqdn_tsid_Policy'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_fqdn_tsid'
+  rules:
+    - 'local:access_rules.rule_action_fqdnv4v6_ALLOW_ALL'
+
+advanced_access_policy.advanced_tab_eve_exempt_fqdn_tsid:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_fqdn_tsid'
+  ssl_policy_settings: 'local:ssl_policy_settings.tsid_ssl_policy_settings'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_fqdn_tsid:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 50
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRulefqdntsid"
+
+eve_exception_rule_list.eveExceptionRulefqdntsid:
+  destinationNetwork: "local:rule_networks_fragment.dest_fqdntsid"
+  comments: "network object"
+
+rule_networks_fragment.dest_fqdntsid:
+  objects:
+    - 'local:networks.dest_fqdn_tsid_host_object'
+
+networks.dest_fqdn_tsid_host_object:
+  name: 'dest_nw_fqdn_quic_obj_172_tsid'
+  type: "FQDN"
+  dnsResolution: "IPV4_AND_IPV6"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+ssl_policy_settings.tsid_ssl_policy_settings:
+  sslPolicy: 'local:ssl_policy.tsid_ssl_policy'
+
+ssl_policy.tsid_ssl_policy:
+  name: 'Exclusion_tsid_ssl_policy'
+  description: 'SSL policy created via automation'
+  encryption: 'do_not_decrypt'
+  rules: ['local:ssl_rule.tsid_ssl_rule']
+  logging: 'local:logging.ssl_policy_log_end_of_connection'
+  advanced_options: 'local:ssl_advanced_options.quic_enable'
+
+
+ssl_rule.tsid_ssl_rule:
+  name: 'mitre_ssl_rule'
+  action: 'decrypt_resign'
+  decryption_certs: [ 'local:internal_ca_generate_certificate.generated_internal_ca_tsid' ]
+  logging: 'local:logging.tsid_ssl_policy_log_end_of_connection'
+
+logging.tsid_ssl_policy_log_end_of_connection:
+  end: 1
+  dc: 1
+
+internal_ca_generate_certificate.generated_internal_ca_tsid:
+  name: 'MitreSelfSignedCA_tsid'
+  description: 'Internal CA created by automation'
+  type: 'PKI_InternalCA'
+  subject_country: 'US'
+  subject_state: 'TX'
+  subject_locality: 'Austin'
+  subject_org: 'Cisco'
+  subject_ou: 'QA'
+  subject_cn: 'Test'
+  imported: '1'
+
+ssl_advanced_options.tsid_enable:
+  adaptive_probe: True
+############################ NAT AC POLICY ##################################################################################################################
+access_policies.nat_Ac_Policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  name: 'AC_Policy_nat_AC_Policy'
+  advanced: 'local:advanced_access_policy.advanced_tab_nat'
+  rules:
+    - "local:access_rules.nat"
+advanced_access_policy.advanced_tab_nat:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_nat'
+
+access_rules.nat:
+  action: "ALLOW"
+  enabled: true
+  name: "eve_access_rule-testing"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_nat:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 90
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRulefqdnv4_nat"
+
+eve_exception_rule_list.eveExceptionRulefqdnv4_nat:
+  destinationNetwork: "local:rule_networks_fragment.dest_fqdnv4_nat"
+  comments: "network object"
+
+rule_networks_fragment.dest_fqdnv4_nat:
+  objects:
+    - 'local:networks.dest_fqdnv4_nat_host_object'
+
+networks.dest_fqdnv4_nat_host_object:
+  name: 'dest_nw_fqdnv4_nat_obj_172'
+  type: "FQDN"
+  dnsResolution: "IPV4_ONLY"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+################################NAT Policies, Rules###########################################################################################################
+nat_policies.natpolicy_with_nat_rules:
+  name: 'DND_DR_NAT'
+  type: 'FTDNatPolicy'
+  rules: ['local:manual_nat_rules.static_rule']
+
+## Manual Static Nat
+manual_nat_rules.static_rule:
+  originalSource: 'local:networks.network_host'
+  sourceInterface: 'local:security_zones.int_security_zones5'
+  destinationInterface: 'local:security_zones.int_security_zones6'
+  description: 'Manual DND DR NAT STATIC'
+  enabled: true
+  natType: 'DYNAMIC'
+  interfaceIpv6: false
+  fallthrough: false
+  dns: false
+  routeLookup: false
+  noProxyArp: false
+  netToNet: false
+  unidirectional: true
+  interfaceInOriginalDestination: false
+  interfaceInTranslatedSource: true
+
+networks.network_host:
+  name: "anyone"
+  overridable: false
+  type: "Network"
+  value: "0.0.0.0/0"
+  description: "Created automatically from REST API"
+
+networks.network_outside_network:
+  name: 'outside_network'
+  type: 'Host'
+  value: "40.1.1.1"
+  overridable: true
+
+security_zones.int_security_zones5:
+  name: 'Inside-Zone1'
+  interfaceMode: 'ROUTED'
+  overridable: true
+
+security_zones.int_security_zones6:
+  name: 'Outside-Zone1'
+  interfaceMode: 'ROUTED'
+  overridable: true
+
+
+###############################################VDB-Access Policy #############################################################################################
+access_policies.vdb_Ac_Policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  name: 'AC_Policy_vdb_AC_Policy'
+  advanced: 'local:advanced_access_policy.advanced_tab_vdb'
+  rules:
+    - "local:access_rules.vdb"
+advanced_access_policy.advanced_tab_vdb:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_vdb'
+
+access_rules.vdb:
+  action: "ALLOW"
+  enabled: true
+  name: "eve_access_rule-testing"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_vdb:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 90
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRulefqdnv4_vdb"
+
+eve_exception_rule_list.eveExceptionRulefqdnv4_vdb:
+  destinationNetwork: "local:rule_networks_fragment.dest_fqdnv4_vdb"
+  comments: "network object"
+
+rule_networks_fragment.dest_fqdnv4_vdb:
+  objects:
+    - 'local:networks.dest_fqdnv4_vdb_host_object'
+
+networks.dest_fqdnv4_vdb_host_object:
+  name: 'dest_nw_fqdnv4_vdb_obj_172'
+  type: "FQDN"
+  dnsResolution: "IPV4_ONLY"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+Dummy_Access_Policy_Rule_Data:
+  acl_rule_count: 5
+  acl_name_prefix: 'acl_dummy_rule'
+  action: 'ALLOW'
+  sendEventsToFMC: 'true'
+  enabled: 'true'
+  logBegin: 'true'
+  logEnd: 'true'
+
+################################################################################################################################################################
+
+access_policies.fqdn_unique_object_AC_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  name: 'AC_Policy_unique_object_AC_Policy'
+  advanced: 'local:advanced_access_policy.advanced_tab_unique'
+  rules:
+    - "local:access_rules.unique"
+advanced_access_policy.advanced_tab_unique:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_unique'
+
+access_rules.unique:
+  action: "ALLOW"
+  enabled: true
+  name: "eve_access_rule-testing"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+  destinationNetworks: 'local:rule_networks_fragment.dest_network'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_unique:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 90
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRulefqdnv4_unique"
+
+eve_exception_rule_list.eveExceptionRulefqdnv4_unique:
+  destinationNetwork: "local:rule_networks_fragment.dest_fqdnv4_unique"
+  comments: "network object"
+
+rule_networks_fragment.dest_fqdnv4_unique:
+  objects:
+    - 'local:networks.dest_fqdnv4_unique_host_object'
+
+networks.dest_fqdnv4_unique_host_object:
+  name: 'dest_nw_fqdnv4_unique_obj_172'
+  type: "FQDN"
+  dnsResolution: "IPV4_ONLY"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+
+rule_networks_fragment.dest_network:
+  objects: ['local:networks.fqdn_v4']
+
+networks.fqdn_v4:
+  name: 'fqdn-acrule-object'
+  type: 'FQDN'
+  value: "client-1.eve.com"
+  overridable: true
+  dnsResolution: "IPV4_ONLY"
+  description: "Created automatically from REST API"
+
+##################################################################################################################################################################
+
+access_policies.fqdn_common_object_AC_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  name: 'AC_Policy_common_object_AC_Policy'
+  advanced: 'local:advanced_access_policy.advanced_tab_common'
+  rules:
+    - "local:access_rules.common"
+advanced_access_policy.advanced_tab_common:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_common'
+
+access_rules.common:
+  action: "ALLOW"
+  enabled: true
+  name: "eve_access_rule-testing"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+  destinationNetworks: 'local:rule_networks_fragment.dest_fqdnv4_common'
+  overridable: true
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_common:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 90
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRulefqdnv4_common"
+eve_exception_rule_list.eveExceptionRulefqdnv4_common:
+  destinationNetwork: "local:rule_networks_fragment.dest_fqdnv4_common"
+  comments: "network object"
+
+rule_networks_fragment.dest_fqdnv4_common:
+  objects:
+    - 'local:networks.dest_fqdnv4_common_host_object'
+
+networks.dest_fqdnv4_common_host_object:
+  name: 'dest_nw_fqdnv4_common-1_obj_172'
+  type: "FQDN"
+  dnsResolution: "IPV4_ONLY"
+  value: "client-1.eve.com"
+  overridable: true
+  description: "Created automatically from REST API"
+
+##############################################################################################################################################################################
+# Access Policy FQDN4 with unresolved ip
+access_policies.EVE_exempt_fqdnv4_unresolved_ip:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_fqdnv4_Policy_unresolved_ip'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_fqdnv4_unresolved_ip'
+  rules:
+    - 'local:access_rules.rule_action_fqdnv4_ALLOW_ALL_unresolved_ip'
+
+access_rules.rule_action_fqdnv4_ALLOW_ALL_unresolved_ip:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+advanced_access_policy.advanced_tab_eve_exempt_fqdnv4_unresolved_ip:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_unresolved_ip'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_unresolved_ip:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 90
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRulefqdnv4_unresolved_ip"
+
+eve_exception_rule_list.eveExceptionRulefqdnv4_unresolved_ip:
+  destinationNetwork: "local:rule_networks_fragment.dest_fqdnv4_unresolved_ip"
+  comments: "network object"
+
+rule_networks_fragment.dest_fqdnv4_unresolved_ip:
+  objects:
+    - 'local:networks.dest_fqdnv4_host_object_unresolved_ip'
+
+networks.dest_fqdnv4_host_object_unresolved_ip:
+  name: 'dest_nw_fqdn_obj_172_unresolved_ip'
+  type: "FQDN"
+  dnsResolution: "IPV4_ONLY"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+##############################################################################################################################################################################
+# Access Policy FQDN4 with cache clear
+access_policies.EVE_exempt_fqdnv4_clear cache:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_fqdnv4_Policy_clear_cache'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_fqdnv4_clear_cache'
+  rules:
+    - 'local:access_rules.rule_action_fqdnv4_ALLOW_ALL_clear_cache'
+
+access_rules.rule_action_fqdnv4_ALLOW_ALL_clear_cache:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+advanced_access_policy.advanced_tab_eve_exempt_fqdnv4_clear_cache:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_clear_cache'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_clear_cache:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 90
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRulefqdnv4_clear_cache"
+
+eve_exception_rule_list.eveExceptionRulefqdnv4_clear_cache:
+  destinationNetwork: "local:rule_networks_fragment.dest_fqdnv4_clear_cache"
+  comments: "network object"
+
+rule_networks_fragment.dest_fqdnv4_clear_cache:
+  objects:
+    - 'local:networks.dest_fqdnv4_host_object_clear_cache'
+
+networks.dest_fqdnv4_host_object_clear_cache:
+  name: 'dest_nw_fqdn_obj_172_clear_cache'
+  type: "FQDN"
+  dnsResolution: "IPV4_ONLY"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+###############################################################################################################################################################################
+# Access Policy FQDN4 live traffic
+access_policies.EVE_exempt_fqdnv4_policy_live_traffic:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_fqdnv4_Policy_live_traffic'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_fqdnv4_live_traffic'
+  rules:
+    - 'local:access_rules.rule_action_fqdnv4_ALLOW_ALL_live_traffic'
+
+access_rules.rule_action_fqdnv4_ALLOW_ALL_live_traffic:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+advanced_access_policy.advanced_tab_eve_exempt_fqdnv4_live_traffic:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_live_traffic'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_live_traffic:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 90
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRulefqdnv4_live_traffic"
+
+eve_exception_rule_list.eveExceptionRulefqdnv4_live_traffic:
+  destinationNetwork: "local:rule_networks_fragment.dest_fqdnv4_live_traffic"
+  comments: "network object"
+
+rule_networks_fragment.dest_fqdnv4_live_traffic:
+  objects:
+    - 'local:networks.dest_fqdnv4_host_object_live_traffic'
+
+networks.dest_fqdnv4_host_object_live_traffic:
+  name: 'dest_nw_fqdn_obj_172_live_traffic'
+  type: "FQDN"
+  dnsResolution: "IPV4_ONLY"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+########################################################################################################################################################
+# Access Policy FQDN4 name change
+access_policies.EVE_fqdn_process_name_change:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_fqdn_process_name_change_Policy'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_fqdn_process_name_change'
+  rules:
+    - 'local:access_rules.rule_action_fqdn_process_name_change_ALLOW_ALL'
+access_rules.rule_action_fqdn_process_name_change_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+advanced_access_policy.advanced_tab_eve_fqdn_process_name_change:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_fqdn_process_name_change'
+eve_settings.enable_all_the_combinations_with_eve_fqdn_process_name_change:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 50
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRulefqdnProcessNameChange"
+eve_exception_rule_list.eveExceptionRulefqdnProcessNameChange:
+  processNameList:
+    - "test-cisco"
+  destinationNetwork: "local:rule_networks_fragment.dest_fqdn_object_name_change"
+  comments: "network object"
+rule_networks_fragment.dest_fqdn_object_name_change:
+  objects:
+    - 'local:networks.dest_fqdn_host_object_name_change'
+networks.dest_fqdn_host_object_name_change:
+  name: 'dest_nw_fqdn_obj_172_update'
+  type: "FQDN"
+  dnsResolution: "IPV4_ONLY"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+###############################################################################################################################################
+# import and export access policy
+access_policies.EVE_exempt_import_export:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_fqdn_import_export_Policy'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_fqdn_import_export'
+  rules:
+    - 'local:access_rules.rule_action_fqdn_import_export_change_ALLOW_ALL'
+access_rules.rule_action_fqdn_import_export_change_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+advanced_access_policy.advanced_tab_eve_fqdn_import_export:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_fqdn_import_export'
+eve_settings.enable_all_the_combinations_with_eve_fqdn_import_export:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 50
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRulefqdnimportexport"
+eve_exception_rule_list.eveExceptionRulefqdnimportexport:
+  destinationNetwork: "local:rule_networks_fragment.dest_fqdn_object_import_export"
+  comments: "network object"
+rule_networks_fragment.dest_fqdn_object_import_export:
+  objects:
+    - 'local:networks.dest_fqdn_host_object_import_export'
+networks.dest_fqdn_host_object_import_export:
+  name: 'dest_nw_fqdn_obj_172_import_export'
+  type: "FQDN"
+  dnsResolution: "IPV4_ONLY"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+###############################################################################################################################################
+access_policies.EVE_exempt_fqdn_clone_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_clone_Policy'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_clone'
+  rules:
+    - 'local:access_rules.rule_action_clone_ALLOW_ALL'
+
+#Access policy
+access_rules.rule_action_clone_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+advanced_access_policy.advanced_tab_eve_exempt_clone:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_clone'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_clone:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 50
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRule_clone"
+
+eve_exception_rule_list.eveExceptionRule_clone:
+  destinationNetwork: "local:rule_networks_fragment.dest_clone"
+  comments: "network object"
+
+rule_networks_fragment.dest_clone:
+  objects:
+    - 'local:networks.dest_fqdnv4v6_host_clone'
+
+networks.dest_fqdnv4v6_host_clone:
+  name: 'dest_nw_obj_172_clone'
+  type: "FQDN"
+  dnsResolution: "IPV4_AND_IPV6"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+###############################################################################################################################################
+#inheritance ACess policy
+access_policies.child_policy:
+  api: 'csm'
+  name: 'child_policy'
+  type: 'AccessPolicy'
+  defaultAction: 'local:access_policy_default_action.block'
+  policy_inheritance_settings: 'local:policy_inheritance_settings.inherited'
+
+policy_inheritance_settings.inherited:
+  base_policy: 'local:access_policies.parent_policy'
+  LoggingPolicy: false
+
+access_policies.parent_policy:
+  type: 'AccessPolicy'
+  name: 'parent_policy'
+  defaultAction: 'local:access_policy_default_action.block'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_inheritance_parent'
+  rules:
+    - 'local:access_rules.rule_action_parent_ALLOW_ALL'
+
+advanced_access_policy.advanced_tab_eve_exempt_inheritance_parent:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_inheritance_parent'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_inheritance_parent:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 50
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRuleInheritanceParent"
+
+eve_exception_rule_list.eveExceptionRuleInheritanceParent:
+  destinationNetwork: "local:rule_networks_fragment.dest_inheritance_parent"
+  comments: "network object"
+
+rule_networks_fragment.dest_inheritance_parent:
+  objects:
+    - 'local:networks.dest_inheritance_host_object'
+
+networks.dest_inheritance_host_object:
+  name: 'dest_nw_inheritance_obj'
+  type: "FQDN"
+  dnsResolution: "IPV4_ONLY"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+access_rules.rule_action_parent_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE parent Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+###############################################################################################################################################
+# Dynamic Attribute Access policy
+access_rules.rule_action_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+access_policies.EVE_exempt_dyn_attr_AC_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_Dyn_Attr_Policy'
+  advanced: 'local:advanced_access_policy.advanced_tab'
+  rules:
+    - 'local:access_rules.rule_action_ALLOW_ALL'
+
+policy_assignment.create_policy_assignment:
+  policy: 'local:access_policies.EVE_exempt_dyn_attr_AC_policy'
+
+advanced_access_policy.advanced_tab:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_dynamic'
+
+eve_settings.enable_all_the_combinations_dynamic:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 35
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRuleHostIP"
+
+eve_exception_rule_list.eveExceptionRuleHostIP:
+  dynamicAttributes: "local:dynamic_object.sampleeve"
+  comments: "destination dynamic object"
+
+dynamic_object.sampleeve:
+  name: 'DynamicObjectSampleeve'
+  description: 'Created by Automation'
+  objectType: 'IP'
+  _mappings: [ 'local:dynamic_object_mapping.sampleeve' ]
+
+dynamic_object_mapping.sampleeve:
+  action: 'add'
+  mappings:
+      - '172.16.2.2'
+
+###############################################################################################################################################
+# Dynamic Attribute Access policy
+access_policies.EVE_exempt_dyn_attr_remove_mapping:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_Dyn_Attr_Policy_remove_map'
+  advanced: 'local:advanced_access_policy.advanced_tab_remove_map'
+  rules:
+    - 'local:access_rules.rule_action_ALLOW_ALL'
+
+advanced_access_policy.advanced_tab_remove_map:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_dynamic_remove_map'
+
+eve_settings.enable_all_the_combinations_dynamic_remove_map:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 99
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRuleHostIP_remove_map"
+
+eve_exception_rule_list.eveExceptionRuleHostIP_remove_map:
+  dynamicAttributes: "local:dynamic_object.sampleeve_remove_map"
+  comments: "destination dynamic object"
+
+dynamic_object.sampleeve_remove_map:
+  name: 'DynamicObjectSample_eve_remove_map'
+  description: 'Created by Automation'
+  objectType: 'IP'
+  _mappings: [ 'local:dynamic_object_mapping.sampleeve_remove_map' ]
+
+dynamic_object_mapping.sampleeve_remove_map:
+  action: 'add'
+  mappings:
+      - '172.16.2.2'
+
+###############################################################################################################################################
+#Access_policy Common Dynamic Object
+access_policies.Dynamic_attri_AC_policy_common:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'Dynamic_Atrri_AC_Policy_Common_Object'
+  advanced: 'local:advanced_access_policy.advanced_tab_common_dynamic'
+  rules:
+    - 'local:access_rules.common_dynamic'
+
+access_rules.common_dynamic:
+  action: "ALLOW"
+  enabled: true
+  name: "eve_access_rule-testing"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+
+policy_assignment.create_policy_assignment_common:
+  policy: 'local:access_policies.Dynamic_Atrri_AC_Policy_Common_Object'
+
+advanced_access_policy.advanced_tab_common_dynamic:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_dynamic_common'
+
+eve_settings.enable_all_the_combinations_dynamic_common:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 99
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRuleDynamicCommon"
+
+eve_exception_rule_list.eveExceptionRuleDynamicCommon:
+  dynamicAttributes: "local:dynamic_object.common_da"
+  comments: "destination dynamic object"
+
+dynamic_object.common_da:
+  name: 'DynamicObject_Common_Exp_list_v4'
+  description: 'Created by Automation'
+  objectType: 'IP'
+  _mappings: [ 'local:dynamic_object_mapping.common_sampleeve' ]
+
+dynamic_object_mapping.common_sampleeve:
+  action: 'add'
+  mappings:
+      - '172.16.2.2'
+
+###############################################################################################################################################
+#Access_policy mutually exclusive
+access_policies.Dynamic_attri_AC_policy_unique:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'Dynamic_Atrri_AC_Policy_unique'
+  advanced: 'local:advanced_access_policy.advanced_tab_dynamic_unique'
+  rules:
+    - 'local:access_rules.unique_dynamic'
+
+access_rules.unique_dynamic:
+  action: "ALLOW"
+  enabled: true
+  name: "eve_access_rule-testing"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+
+policy_assignment.create_policy_assignment_exclusive:
+  policy: 'local:access_policies.Dynamic_attri_AC_policy'
+
+advanced_access_policy.advanced_tab_dynamic_unique:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_dynamic_unique'
+
+eve_settings.enable_all_the_combinations_dynamic_unique:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 99
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRuleHostIP_unique_dynamic"
+
+dynamic_object.dynamic_v4:
+  name: 'DynamicObject_Unique_rule_v4'
+  description: 'Created by Automation'
+  objectType: 'IP'
+  _mappings: [ 'local:dynamic_object_mapping.sampleeve_unique_dynamic' ]
+
+
+eve_exception_rule_list.eveExceptionRuleHostIP_unique_dynamic:
+  dynamicAttributes: "local:dynamic_object.unique_da_unique"
+  comments: "destination dynamic object"
+
+dynamic_object.unique_da_unique:
+  name: 'DynamicObject_Unique_Exp_list_v4'
+  description: 'Created by Automation'
+  objectType: 'IP'
+  _mappings: [ 'local:dynamic_object_mapping.sampleeve_unique_dynamic' ]
+
+dynamic_object_mapping.sampleeve_unique_dynamic:
+  action: 'add'
+  mappings:
+      - '172.16.2.2'
+
+###############################################################################################################################################
+#Access_policy Delete Dynamic Object
+access_policies.Dynamic_attri_AC_policy_update:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'Dynamic_Atrri_AC_Policy_Update_Object'
+  advanced: 'local:advanced_access_policy.advanced_tab_update'
+  rules:
+    - 'local:access_rules.update_dynamic'
+
+access_rules.update_dynamic:
+  action: "ALLOW"
+  enabled: true
+  name: "eve_access_rule-testing"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+
+policy_assignment.create_policy_assignment_update:
+  policy: 'local:access_policies.Dynamic_Atrri_AC_Policy_Update_Object'
+
+advanced_access_policy.advanced_tab_update:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_dynamic_update'
+
+eve_settings.enable_all_the_combinations_dynamic_update:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 99
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRuleDynamicUpdate"
+
+eve_exception_rule_list.eveExceptionRuleDynamicUpdate:
+  dynamicAttributes: "local:dynamic_object.update_da"
+  comments: "destination dynamic object"
+
+dynamic_object.update_da:
+  name: 'DynamicObject_Update_Exp_list_v4'
+  description: 'Created by Automation'
+  objectType: 'IP'
+  _mappings: [ 'local:dynamic_object_mapping.update_sampleeve' ]
+
+dynamic_object_mapping.update_sampleeve:
+  action: 'add'
+  mappings:
+      - '172.16.2.2'
+
+########################################################################################################################################################################################
+access_policies.EVE_fqdnv4_switch_over:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy_switchover'
+  name: 'EVE_exempt_fqdnv4_switchover'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_fqdnv4_switchover'
+  rules:
+    - 'local:access_rules.rule_action_fqdnv4_ALLOW_ALL_switchover'
+
+access_rules.rule_action_fqdnv4_ALLOW_ALL_switchover:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  destinationNetworks: 'local:rule_networks_fragment.dest_fqdnv4_switchover'
+
+rule_networks_fragment.dest_fqdnv4_switchover:
+  objects:
+    - 'local:networks.dest_fqdnv4_host_object_switchover'
+
+networks.dest_fqdnv4_host_object_switchover:
+  name: 'dest_nw_fqdn_obj_switchover'
+  type: "FQDN"
+  dnsResolution: "IPV4_ONLY"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+advanced_access_policy.advanced_tab_eve_exempt_fqdnv4_switchover:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_switchover'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_switchover:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 50
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRulefqdnv4_switchover"
+
+eve_exception_rule_list.eveExceptionRulefqdnv4_switchover:
+  destinationNetwork: "local:rule_networks_fragment.dest_fqdnv4_switchover"
+  dynamicAttributes: "local:dynamic_object.switchover"
+  comments: "network object"
+
+dynamic_object.switchover:
+  name: 'DynamicObject_Unique_Exp_list_switchover'
+  description: 'Created by Automation'
+  objectType: 'IP'
+  _mappings: [ 'local:dynamic_object_mapping.switchover' ]
+
+dynamic_object_mapping.switchover:
+  action: 'add'
+  mappings:
+      - '172.16.2.2'
+
+########################################################################################################################################################################################
+#backup and restore
+access_policies.Backup_Restore_EVE_exempt_fqdnv4v6_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy_backup_restore'
+  name: 'Backup_Restore_EVE_exempt_fqdnv4v6_Policy'
+  advanced: 'local:advanced_access_policy.advanced_tab_backup_restore_eve_exempt_fqdnv4v6'
+  rules:
+    - 'local:access_rules.rule_action_backup_restore_fqdnv4v6_ALLOW_ALL'
+
+access_rules.rule_action_backup_restore_fqdnv4v6_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+advanced_access_policy.advanced_tab_backup_restore_eve_exempt_fqdnv4v6:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_backup_restore_eve_exempt_fqdnv4v6'
+
+eve_settings.enable_all_the_combinations_with_backup_restore_eve_exempt_fqdnv4v6:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 50
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRuleBackupRestorefqdnv4v6"
+
+eve_exception_rule_list.eveExceptionRuleBackupRestorefqdnv4v6:
+  destinationNetwork: "local:rule_networks_fragment.dest_backup_restore_fqdnv4v6"
+  comments: "network object"
+
+rule_networks_fragment.dest_backup_restore_fqdnv4v6:
+  objects:
+    - 'local:networks.dest_backup_restore_fqdnv4v6_host_object'
+
+networks.dest_backup_restore_fqdnv4v6_host_object:
+  name: 'dest_nw_br_fqdnv4v6_obj_172_backup'
+  type: "FQDN"
+  dnsResolution: "IPV4_AND_IPV6"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+
+########################################################################################################################################################################################
+#bulk IP mapping
+access_policies.Dynamic_attri_AC_policy_bulk_ip_mapping:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy_bulk_ip_mapping'
+  name: 'Dynamic_Atrri_AC_Policy_Bulk_IP_Object'
+  advanced: 'local:advanced_access_policy.advanced_tab_bulk'
+  rules:
+    - 'local:access_rules.bulk_dynamic'
+
+access_rules.bulk_dynamic:
+  action: "ALLOW"
+  enabled: true
+  name: "eve_access_rule-testing"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+  policy_assignment.create_policy_assignment_bulk:
+  policy: 'local:access_policies.Dynamic_Atrri_AC_Policy_Bulk_IP_Object'
+
+advanced_access_policy.advanced_tab_bulk:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_dynamic_bulk'
+
+eve_settings.enable_all_the_combinations_dynamic_bulk:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 99
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRuleDynamicBulk"
+
+eve_exception_rule_list.eveExceptionRuleDynamicBulk:
+  dynamicAttributes: "local:dynamic_object.bulk_da"
+  comments: "destination dynamic object"
+
+dynamic_object.bulk_da:
+  name: 'DynamicObject_Bulk_IP_Mapping_Exp_list_v4'
+  description: 'Created by Automation'
+  objectType: 'IP'
+  _mappings: [ 'local:dynamic_object_mapping.bulk_sampleeve' ]
+
+dynamic_object_mapping.bulk_sampleeve:
+  action: 'add'
+  mappings:
+      - '3.3.3.3'
+      - '4.4.4.0/24'
+      - '5.6.7.8'
+      - '3.4.5.6'
+      - '4.5.6.7'
+      - '6.7.8.0/24'
+      - '9.1.2.3'
+      - '7.8.9.1'
+      - '2.2.6.7'
+      - '172.16.2.2'
+
+########################################################################################################################################################################################
+
+# AC policy for roll back
+access_policies.roll_back:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy_deployment_rollback'
+  name: 'roll_policy'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_roll_policy'
+  rules:
+    - 'local:access_rules.rule_rollback'
+
+advanced_access_policy.advanced_tab_eve_roll_policy:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_roll_policy'
+
+eve_settings.enable_all_the_combinations_with_eve_roll_policy:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 50
+
+access_rules.rule_rollback:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+eve_exception_rule_list.rollback_rule:
+  destinationNetwork: "local:rule_networks_fragment.dest_roll"
+  comments: "network object and process"
+  processNameList:
+    - "cisco"
+rule_networks_fragment.dest_roll:
+  objects:
+    - 'local:networks.roll_host_object'
+
+networks.roll_host_object:
+  name: 'dest_nw_revert_obj'
+  type: "FQDN"
+  dnsResolution: "IPV4_ONLY"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+########################################################################################################################
+#access policy_bulk-exception rule
+access_policies.EVE_exempt_bulk_exception_rule:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy_bulk_exception'
+  name: 'EVE_exempt_fqdnv4_Policy_bulk'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_fqdnv4_bulk'
+  rules:
+    - 'local:access_rules.rule_action_fqdnv4_ALLOW_ALL_bulk'
+
+#Access policy
+access_rules.rule_action_fqdnv4_ALLOW_ALL_bulk:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  destinationNetworks: 'local:rule_networks_fragment.dest_fqdnv4_bulk'
+
+advanced_access_policy.advanced_tab_eve_exempt_fqdnv4_bulk:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_bulk'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_fqdnv4_bulk:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 50
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRulefqdnv4_bulk"
+
+eve_exception_rule_list.eveExceptionRulefqdnv4_bulk:
+  destinationNetwork: "local:rule_networks_fragment.dest_fqdnv4_bulk"
+  comments: "network object"
+
+rule_networks_fragment.dest_fqdnv4_bulk:
+  objects:
+    - 'local:networks.dest_fqdnv4_host_object_valid'
+
+networks.dest_fqdnv4_host_object_valid:
+  name: 'dest_nw_fqdn_obj_172-valid'
+  type: "FQDN"
+  dnsResolution: "IPV4_ONLY"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+########################################################################################################################
+
+EVE_exception_Rule_Data:
+  exception_rule_count: 50
+  process_name_prefix:
+    - 'malware-pykspa'
+    - 'malware-upatre'
+    - 'malware-shiz'
+    - 'malware-generic-ransomware'
+    - 'malware-ransomware-wanacryptor'
+    - 'malware-brontok'
+    - 'malware-vertexnet-rat'
+    - 'malware-swisym-worm'
+    - 'malware-adware'
+    - 'malware-document-av'
+    - 'malware-unruy'
+    - 'malware-neshta'
+    - 'malware-ransomware-djvu'
+    - 'malware-dropper-andromeda'
+  comments: "network object"
+
+dest_fqdn_host_object:
+  name_prefix: 'dest_nw_fqdnv4_obj'
+  type: "FQDN"
+  dnsResolution: "IPV4_ONLY"
+  value: "client-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+eve_exception_rule_list.eveExceptionRulefqdnv4object:
+  destinationNetwork: "local:rule_networks_fragment.dest_fqdnv4_object"
+  comments: "network object"
+  processNameList:
+    - "Valid_eve_exception_rule"
+rule_networks_fragment.dest_fqdnv4_object:
+  objects:
+    - 'local:networks.dest_fqdnv4_host'
+networks.dest_fqdnv4_host:
+  name: 'valid_dest_nw_fqdn_obj'
+  type: "FQDN"
+  dnsResolution: "IPV4_ONLY"
+  value: "test-1.eve.com"
+  overridable: false
+  description: "Created automatically from REST API"
+
+dynamic_host_object:
+  name_prefix: 'DynamicObjectBulk'
+  description: 'Created by Automation'
+  objectType: 'IP'
+
+########################################################################################################################################################################################
+access_policies.EVE_exempt_with_mercury_stats:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_mercury_stats'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_mercury_stats'
+  rules:
+    - 'local:access_rules.rule_action_mercury_stats_ALLOW_ALL'
+
+#Access policy
+access_rules.rule_action_mercury_stats_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+advanced_access_policy.advanced_tab_eve_mercury_stats:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_with_mercury_stats'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_with_mercury_stats:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  showTLSStringInConnEvents: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 35
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRuleHostIPandprocess"
+
+eve_exception_rule_list.eveExceptionRuleHostIPandprocess:
+  processNameList:
+    - "malware-unknown"
+  comments: "network host object and process"
+
+########################################################################################################################################################################################
+
+access_policies.EVE_exempt_mercury_module:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_mercury_module'
+  advanced: 'local:advanced_access_policy.advanced_tab_mercury_module'
+  rules:
+    - 'local:access_rules.rule_action_ALLOW_ALL'
+
+advanced_access_policy.advanced_tab_mercury_module:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_mercury_module'
+
+eve_settings.enable_all_the_combinations_mercury_module:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  showTLSStringInConnEvents: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 35
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRule_mercury_module"
+
+eve_exception_rule_list.eveExceptionRule_mercury_module:
+  destinationNetwork: "local:rule_networks_fragment.literals"
+  comments: "network host object"
+
+rule_networks_fragment.literals:
+    literals:
+    - value: '172.16.2.2'
+   
+########################################################################################################################################################################################
+
+access_policies.EVE_exception_mercury_dashboard_config:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_mercury_dashboard'
+  advanced: 'local:advanced_access_policy.advanced_tab_mercury_dashboard'
+  rules:
+    - 'local:access_rules.rule_action_ALLOW_ALL'
+
+advanced_access_policy.advanced_tab_mercury_dashboard:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_mercury_dashboard'
+
+eve_settings.enable_all_the_combinations_mercury_dashboard:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  showTLSStringInConnEvents: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 99
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRule_mercury_dashboard"
+
+eve_exception_rule_list.eveExceptionRule_mercury_dashboard:
+  destinationNetwork: "local:rule_networks_fragment.mercury_module"
+  comments: "network host object"
+
+rule_networks_fragment.mercury_module:
+    literals:
+    - value: '172.16.2.2'
+
+
+########################################################### HA Configuration Section ################################################################
+
+ftd_ha.ftdha_global_domain:
+  name: HA-Global-Domain
+  isEncryptionEnabled: true
+  encKeyGenerationScheme: CUSTOM
+  sharedKey: cisco123
+  useSameLinkForFailovers: true
+  lanFailover: 'local:failover.lanFailover_global_domain_devel'
+  statefulFailover: 'local:failover.statefulFailover_global_domain_devel'
+  _polling_delay_between_steps: 60
+  _polling_max_timeout: 800
+
+failover.lanFailover_global_domain_devel:
+  activeIP: 172.16.0.100
+  logicalName: LAN-INTERFACE
+  standbyIP: 172.16.0.101
+  subnetMask: 255.255.255.0
+  useIPv6Address: false
+
+failover.statefulFailover_global_domain_devel:
+  activeIP: 172.16.0.100
+  logicalName: STATEFUL-INTERFACE
+  standbyIP: 172.16.0.101
+  subnetMask: 255.255.255.0
+  useIPv6Address: false
+
+###### Test Cases ####################################################################################################################################################################################################
+EVE_test_cases:
+
+#  EVE_dyn_attr_object_v4:
+#    description: "Dynamic_attibute_v4"
+#    dst_object: "DynamicObjectSampleeve"
+#    dns_name: "client-1.eve.com"
+#    address: 172.16.2.2
+#    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+
+  Eve_Exception_Mercury_Stats:
+    description: "Mercury Counter Check"
+    pcap_file: "00_17_09_607147_AndroidAPPS_surfshark_ikev2.pcap"
+    dst_object: "dstfqdn"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  Eve_Exception_Mercury_Module:
+    description: "Mercury Module Check"
+    pcap_file: "00_17_09_607147_AndroidAPPS_surfshark_ikev2.pcap"
+    dst_object: "172.16.2.2"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+    process_keyword : "process_score:"
+    mercury_keyword: "threat_score:"
+    fingerprint_keyword: "fingerprint_status: labeled, fingerprint: http/"
+
+  Eve_Exception_Exception_rule_order_1_with_ID:
+    description: "Mercury Module Check"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dst_object: "172.16.2.2"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+    eve_handler_keyword: "matched"
+    rule_order_keyword: "Exception rule order 1 with ID"
+
+  Eve_Exception_dashboard:
+    description: "Dashboard Check"
+    pcap_file: "00_17_09_607147_AndroidAPPS_surfshark_ikev2.pcap"
+    pcap_file2: "malware.pcap"
+    dst_object: "172.16.2.2"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+    keyword1: "process_name: surfshark vpn"
+    keyword2: "process_name: malware-"
+
+  Exception_with_Destination_FQDN_V4_without_DNS:
+    description: "FQDN_v4"
+    dst_object: "dstfqdn"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  Exception_with_Destination_FQDN_V4:
+    description: "FQDN_v4"
+    dst_object: "dstfqdn"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  Exception_with_Destination_FQDN_dns_not_reachable:
+    description: "FQDN_v6"
+    dst_object: "dstfqdn"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dns_name: "client-1.eve.com"
+    address: 2001:1::2:109
+
+  Exception_with_Destination_FQDN_clear_cache:
+    description: "FQDNv4_with_common_network_objects"
+    dst_object: "dstfqdn"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  Exception_with_Destination_FQDN_vdb_up:
+    description: "FQDNv4_with_vdb_up_down"
+    dst_object: "dstfqdn"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  Exception_with_Destination_FQDN_vdb_down:
+    description: "FQDNv4_with_vdb_up_down"
+    dst_object: "dstfqdn"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  Exception_with_Destination_FQDN_unique:
+    description: "FQDNv4_with_unique_network_objects"
+    dst_object: "dstfqdn"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  Exception_with_Destination_FQDN_invalid_domain:
+    description: "FQDN_v4"
+    dst_object: "dstfqdn"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dns_name: "test-1.media.com"
+    address: 172.16.2.2
+
+  Exception_with_Destination_FQDN_V6:
+    description: "FQDN_v6"
+    dst_object: "dstfqdn"
+    pcap_file: "v6_filtered.pcap"
+    dns_name: "client-1.eve.com"
+    address: 2001:1::2:109
+
+  Exception_with_Destination_FQDN_V4_V6:
+    description: "FQDN_v4v6"
+    dst_object: "dstfqdn"
+    pcap_file: "merged_v4_v6.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  Exception_with_Destination_FQDN_nat:
+    description: "FQDNv4v6_with_nat"
+    dst_object: "dstfqdn"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  Exception_with_remove_objects:
+    description: "FQDN_v4_remove_objects"
+    dst_object: "dstfqdn"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  Exception_with_Destination_FQDN_common:
+    description: "FQDNv4_with_common_network_objects"
+    dst_object: "dstfqdn"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  Exception_with_Destination_FQDN_unresolved_ip:
+    description: "FQDNv4_with_common_network_objects"
+    dst_object: "dstfqdn"
+    pcap_file: "malware.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  EVE_fqdn_process_name_change_v4:
+    description: "FQDN_v4_name_change"
+    dst_object: "obj_test_cisco"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+
+  EVE_fqdn_clone_ac_network_object:
+     description: "Dynamic_attibute_v4"
+     dst_object: "dstfqdn"
+     dns_name: "client-1.eve.com"
+     address: 172.16.2.2
+     pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+
+  EVE_dyn_attr_object_v4:
+    description: "Dynamic_attibute_v4"
+    dst_object: "DynamicObjectSampleeve"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+
+  EVE_dyn_attr_object_v4_delete:
+    description: "Dynamic_attibute_v4"
+    dst_object: "dstfqdn"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+
+  EVE_dyn_attr_object_v4_remove_mapping:
+    description: "Dynamic_attibute_v4"
+    dst_object: "DynamicObjectSample_eve_remove_map"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+
+  Exception_with_inheritance_behaviour:
+    description: "FQDN_v4_inheritance"
+    dst_object: "dstfqdn"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  Exception_with_import_export:
+    description: "FQDN_v4_import_export"
+    dst_object: "dstfqdn"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  Exception_with_mutually_inclusive_dynamic:
+    description: "FQDN_v4_inclusive_dynamic"
+    dst_object: "DynamicObject_Common_Exp_list_v4"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+  Exception_with_mutually_exclusive_dynamic:
+    description: "FQDN_v4_exclusive_dynamic"
+    dst_object: "DynamicObject_Unique_Exp_list_v4"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  EVE_dynamic_process_name_change_v4:
+    description: "FQDN_v4_exclusive_dynamic"
+    dst_object: "DynamicObject_Update_Exp_list_v4"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  Exception_with_Dynamic_Object_Bulk_IP_Mapping:
+    description: "Bulk IP Mapping."
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dst_object: "DynamicObject_Bulk_IP_Mapping_Exp_list_v4"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  Exception_with_Dynamic_Object_deployment_rollback:
+    description: "Deployment_Rollback"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dst_object: "DynamicObject_Bulk_IP_Mapping_Exp_list_v4"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  Access_policy_with_bulk_exception_rules:
+    description: "Deployment_Rollback"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dst_object: "dstfqdn"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  Exception_with_dns_ip_change_live_traffic:
+    description: "FQDN_v4_live_traffic"
+    dst_object: "dstfqdn"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+#  Exception_with_Destination_FQDN_V4_ssl:
+#    description: "FQDNv4_with_ssl"
+#    dst_object: "dstfqdn"
+#    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+#    dns_name: "client-1.eve.com"
+#    address: 172.16.2.2
+
+#  Exception_with_Destination_FQDN_V4_quic:
+#    description: "FQDNv4_with_ssl_quic"
+#    dst_object: "dstfqdn"
+#    dns_name: "client-1.eve.com"
+#    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+#    address: 172.16.2.2
+#
+#  Exception_with_Destination_FQDN_V4_tsid:
+#    description: "FQDNv4v6_with_ssl_tsid"
+#    dst_object: "dstfqdn"
+#    pcap_file: "mitreblockpcap.pcap"
+#    dns_name: "client-1.eve.com"
+#    address: 2001:1::2:109
+#
+#  Exception_rule_with_FQDN_DA_after_FTD-HA_failover:
+#    description: "FTD-HA and after Failover."
+#    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+#    dst_object: "DynamicObject_Unique_Exp_list_switchover"
+#    dns_name: "client-1.eve.com"
+#    address: 172.16.2.2
+#
+#  Exception_rule_with_backup_restore:
+#    description: "Backup and Restore."
+#    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+#    dst_object: "dstfqdn"
+#    dns_name: "client-1.eve.com"
+#    address: 172.16.2.2
+
+
+EVE_test_precommit_cases:
+
+  Eve_Exception_Mercury_Stats:
+    description: "Mercury Counter Check"
+    pcap_file: "00_17_09_607147_AndroidAPPS_surfshark_ikev2.pcap"
+    dst_object: "dstfqdn"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  Eve_Exception_Mercury_Module:
+    description: "Mercury Module Check"
+    pcap_file: "00_17_09_607147_AndroidAPPS_surfshark_ikev2.pcap"
+    dst_object: "172.16.2.2"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+    process_keyword : "process_score:"
+    mercury_keyword: "threat_score:"
+    fingerprint_keyword: "fingerprint_status: labeled, fingerprint: http/"
+
+  Eve_Exception_Exception_rule_order_1_with_ID:
+    description: "Mercury Module Check"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dst_object: "172.16.2.2"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+    eve_handler_keyword: "matched"
+    rule_order_keyword: "Exception rule order 1 with ID"
+
+  Eve_Exception_dashboard:
+    description: "Dashboard Check"
+    pcap_file: "00_17_09_607147_AndroidAPPS_surfshark_ikev2.pcap"
+    pcap_file2: "malware.pcap"
+    dst_object: "172.16.2.2"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+    keyword1: "process_name: surfshark vpn"
+    keyword2: "process_name: malware-"
+
+  Exception_with_Destination_FQDN_V4:
+    description: "FQDN_v4"
+    dst_object: "dstfqdn"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  Exception_with_Destination_FQDN_V6:
+    description: "FQDN_v6"
+    dst_object: "dstfqdn"
+    pcap_file: "v6_filtered.pcap"
+    dns_name: "client-1.eve.com"
+    address: 2001:1::2:109
+
+  Exception_with_Destination_FQDN_V4_V6:
+    description: "FQDN_v4v6"
+    dst_object: "dstfqdn"
+    pcap_file: "merged_v4_v6.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  Exception_with_Destination_FQDN_nat:
+    description: "FQDNv4v6_with_nat"
+    dst_object: "dstfqdn"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  Exception_with_remove_objects:
+    description: "FQDN_v4_remove_objects"
+    dst_object: "dstfqdn"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  EVE_fqdn_process_name_change_v4:
+    description: "FQDN_v4_name_change"
+    dst_object: "dstfqdn"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+
+  EVE_dyn_attr_object_v4:
+    description: "Dynamic_attibute_v4"
+    dst_object: "DynamicObjectSampleeve"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+
+  EVE_dyn_attr_object_v4_delete:
+    description: "Dynamic_attibute_v4"
+    dst_object: "dstfqdn"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+
+
+  Exception_with_mutually_inclusive_dynamic:
+    description: "FQDN_v4_inclusive_dynamic"
+    dst_object: "DynamicObject_Common_Exp_list_v4"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  Exception_with_mutually_exclusive_dynamic:
+    description: "FQDN_v4_exclusive_dynamic"
+    dst_object: "DynamicObject_Unique_Exp_list_v4"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+    dns_name: "client-1.eve.com"
+    address: 172.16.2.2
+
+  EVE_dynamic_process_name_change_v4:
+      description: "FQDN_v4_exclusive_dynamic"
+      dst_object: "DynamicObject_Update_Exp_list_v4"
+      pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+      dns_name: "client-1.eve.com"
+      address: 172.16.2.2
