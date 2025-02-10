@@ -1,0 +1,803 @@
+inline_set.test_rest_inlineset:
+  name: 'my_rest_inlineset'
+  mtu: 1500
+########################################################################################################################
+git_info:
+  clone_url: 'https://bitbucket-eng-bgl1.cisco.com/bitbucket/scm/ftd_test_bgl/eve_test_pcaps.git'
+  clone_branch: 'master'
+########################################################################################################################
+URL: "https://firepower-engfs-ful.cisco.com/netboot/snort3/config_packages/lsp/Release/"
+Branch: "Release"
+########################################################################################################################
+
+#Default cleanup access policy
+access_policies.cleanup_acpolicy:
+  name: 'cleanup_acpolicy'
+  defaultAction: 'local:access_policy_default_action.block'
+
+access_policy_default_action.block:
+  action: 'BLOCK'
+
+#Access policy
+access_rules.rule_action_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+access_policies.EVE_exempt_host_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_host_Policy'
+  advanced: 'local:advanced_access_policy.advanced_tab'
+  rules:
+    - 'local:access_rules.rule_action_ALLOW_ALL'
+
+policy_assignment.create_policy_assignment:
+  policy: 'local:access_policies.EVE_exempt_host_policy'
+
+advanced_access_policy.advanced_tab:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations'
+
+eve_settings.enable_all_the_combinations:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  showTLSStringInConnEvents: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 99
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRuleHostIP"
+
+eve_exception_rule_list.eveExceptionRuleHostIP:
+  destinationNetwork: "local:rule_networks_fragment.literals"
+  comments: "network host object"
+
+rule_networks_fragment.literals:
+    literals:
+    - value: '172.16.2.2'
+
+########################################################################################################################################################################################
+access_policies.EVE_exempt_host_policy_ssl:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_host_Policy_with_ssl'
+  advanced: 'local:advanced_access_policy.advanced_tab_enable_disable_EVE'
+  rules:
+    - "local:access_rules.enable_disable_EVE"
+advanced_access_policy.advanced_tab_enable_disable_EVE:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_ssl'
+  ssl_policy_settings: 'local:ssl_policy_settings.ssl_policy_settings'
+
+access_rules.enable_disable_EVE:
+  action: "ALLOW"
+  enabled: true
+  name: "eve_access_rule-testing"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+
+
+eve_settings.enable_all_the_combinations_ssl:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  showTLSStringInConnEvents: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 99
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRuleSSLProcessName"
+
+eve_exception_rule_list.eveExceptionRuleSSLProcessName:
+  comments: "process name"
+  processNameList:
+    - "malware-adware"
+    - "malware-coinminer"
+    - "malware-flystudio"
+    - "malware-pykspa"
+    - "generic dmz process"
+    - "alibaba protect"
+    - "adobe acrobat reader"
+
+
+ssl_policy_settings.ssl_policy_settings:
+  sslPolicy: 'local:ssl_policy.ssl_policy'
+ssl_policy.ssl_policy:
+  name: 'Exclusion_ssl_policy'
+  description: 'SSL policy created via automation'
+  encryption: 'do_not_decrypt'
+  rules: ['local:ssl_rule.ssl_rule']
+  logging: 'local:logging.ssl_policy_log_end_of_connection'
+  advanced_options: 'local:ssl_advanced_options.quic_enable'
+logging.ssl_policy_log_end_of_connection:
+  end: 1
+  dc: 1
+ssl_rule.ssl_rule:
+  name: 'mitre_ssl_rule'
+  action: 'decrypt_resign'
+  decryption_certs: [ 'local:internal_ca_generate_certificate.generated_internal_ca' ]
+  logging: 'local:logging.ssl_policy_log_end_of_connection'
+internal_ca_generate_certificate.generated_internal_ca:
+  name: 'MitreSelfSignedCA'
+  description: 'Internal CA created by automation'
+  type: 'PKI_InternalCA'
+  subject_country: 'US'
+  subject_state: 'TX'
+  subject_locality: 'Austin'
+  subject_org: 'Cisco'
+  subject_ou: 'QA'
+  subject_cn: 'Test'
+  imported: '1'
+
+ssl_advanced_options.quic_enable:
+  quic_decryption: True
+  tls13_decryption: False
+  adaptive_probe: False
+###################################################################################################################################################
+
+########################################################################################################################################################################################
+access_policies.EVE_exempt_network_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_network_Policy'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_network'
+  rules:
+    - 'local:access_rules.rule_action_nw_ALLOW_ALL'
+
+#Access policy
+access_rules.rule_action_nw_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+advanced_access_policy.advanced_tab_eve_exempt_network:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_network'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_network:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  showTLSStringInConnEvents: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 75
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRuleNetworkIP"
+
+eve_exception_rule_list.eveExceptionRuleNetworkIP:
+  destinationNetwork: "local:rule_networks_fragment.dest_network"
+  comments: "network object"
+
+rule_networks_fragment.dest_network:
+  objects:
+    - 'local:networks.dest_network_host_object'
+
+networks.dest_network_host_object:
+  name: 'dest_nw_obj_172'
+  type: "Network"
+  value: "172.16.2.0/24"
+  overridable: false
+  description: "Created automatically from REST API"
+
+##############################################################################################################################################################################################
+
+########################################################################################################################################################################################
+access_policies.EVE_exempt_range_ip_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_range_Policy'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_range'
+  rules:
+    - 'local:access_rules.rule_action_range_ALLOW_ALL'
+
+#Access policy
+access_rules.rule_action_range_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+
+advanced_access_policy.advanced_tab_eve_exempt_range:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_range'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_range:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  showTLSStringInConnEvents: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 75
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRuleRangeIP"
+
+eve_exception_rule_list.eveExceptionRuleRangeIP:
+  destinationNetwork: "local:rule_networks_fragment.dest_range_ip"
+  comments: "network object"
+
+rule_networks_fragment.dest_range_ip:
+  objects:
+    - 'local:networks.dest_range_ip_object'
+
+networks.dest_range_ip_object:
+  name: 'dest_range_obj_172'
+  type: "Range"
+  value: "172.16.2.1-172.16.2.5"
+  overridable: false
+  description: "Created automatically from REST API"
+
+
+########################################################################################################################################################################################
+access_policies.EVE_exempt_process_name_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_process_name_Policy'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_process_name'
+  rules:
+    - 'local:access_rules.rule_action_process_ALLOW_ALL'
+
+#Access policy
+access_rules.rule_action_process_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+advanced_access_policy.advanced_tab_eve_exempt_process_name:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_process_name'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_process_name:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  showTLSStringInConnEvents: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 99
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRuleProcessName"
+
+eve_exception_rule_list.eveExceptionRuleProcessName:
+  comments: "process name"
+  processNameList:
+    - "malware-unknown"
+
+#######################################################################################################################################################
+
+########################################################################################################################################################################################
+access_policies.EVE_exempt_with_TSID_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_with_tsid'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_with_tsid'
+  rules:
+    - 'local:access_rules.rule_action_tsid_ALLOW_ALL'
+
+#Access policy
+access_rules.rule_action_tsid_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+advanced_access_policy.advanced_tab_eve_exempt_with_tsid:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_with_tsid'
+  tls_server_settings: 'local:tls_server_settings.enable_tsid'
+
+#eve_settings.enable_all_the_combinations_with_eve_exempt:
+#  tlsFingerprint: True
+#  assignClientApplnsToProcess: True
+#  blockTrafficOnEveScore: True
+#  blockTrafficAdvMode: True
+#  blockThreshold: 99
+#  eveExceptionRuleList:
+#    - "local:eve_exception_rule_list.eveExceptionRuleNetworkIP"
+#    - "local:eve_exception_rule_list.eveExceptionRuleProcessName"
+#    - "local:eve_exception_rule_list.eveExceptionRuleRangeIP"
+#    - "local:eve_exception_rule_list.eveExceptionRuleHostIP"
+
+tls_server_settings.enable_tsid:
+  inherit: True
+  certVisibility: True
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_with_tsid:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  showTLSStringInConnEvents: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 50
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRuleTsid"
+
+eve_exception_rule_list.eveExceptionRuleTsid:
+  destinationNetwork: "local:rule_networks_fragment.tsid"
+  comments: "network object"
+
+rule_networks_fragment.tsid:
+  objects:
+    - 'local:networks.tsid_host_object'
+
+networks.tsid_host_object:
+  name: 'tsid_nw_obj_172'
+  type: "Network"
+  value: "172.16.2.0/24"
+  overridable: false
+  description: "Created automatically from REST API"
+
+
+########################################################################################################################################################################################
+access_policies.EVE_exempt_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt'
+  rules:
+    - 'local:access_rules.rule_action_eve_ALLOW_ALL'
+
+#Access policy
+access_rules.rule_action_eve_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+advanced_access_policy.advanced_tab_eve_exempt:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_nw_grp_with_eve_exempt'
+
+eve_settings.enable_all_the_combinations_nw_grp_with_eve_exempt:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  showTLSStringInConnEvents: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 99
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRuleHostIPandprocess"
+
+eve_exception_rule_list.eveExceptionRuleHostIPandprocess:
+  processNameList:
+    - "malware-unknown"
+  comments: "network host object and process"
+##########################################################################################################################################################
+access_policies.EVE_exempt_host_v6_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_host_v6_Policy'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_host_v6'
+  rules:
+    - 'local:access_rules.rule_action_host_v6_ALLOW_ALL'
+
+#Access policy
+access_rules.rule_action_host_v6_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+advanced_access_policy.advanced_tab_eve_exempt_host_v6:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_host_v6'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_host_v6:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  showTLSStringInConnEvents: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 50
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRuleHostIPv6"
+
+eve_exception_rule_list.eveExceptionRuleHostIPv6:
+  destinationNetwork: "local:rule_networks_fragment.literals_v6"
+  comments: "network host object"
+
+rule_networks_fragment.literals_v6:
+    literals:
+    - value: '2001:1::2:109'
+
+########################################################################################################################################################################################
+access_policies.EVE_exempt_network_v6_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_network_Policy_v6'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_network_v6'
+  rules:
+    - 'local:access_rules.rule_action_nw_v6_ALLOW_ALL'
+
+#Access policy
+access_rules.rule_action_nw_v6_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+advanced_access_policy.advanced_tab_eve_exempt_network_v6:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_network_v6'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_network_v6:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  showTLSStringInConnEvents: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 50
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRuleNetworkIPv6"
+
+eve_exception_rule_list.eveExceptionRuleNetworkIPv6:
+  destinationNetwork: "local:rule_networks_fragment.dest_network_v6"
+  comments: "network object"
+
+rule_networks_fragment.dest_network_v6:
+  objects:
+    - 'local:networks.dest_network_v6_host_object'
+
+networks.dest_network_v6_host_object:
+  name: 'dest_nw_v6_obj_172'
+  type: "Network"
+  value: "2001:1::2:100/120"
+  overridable: false
+  description: "Created automatically from REST API"
+
+########################################################################################################################################################################################
+access_policies.EVE_exempt_range_ipv6_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_range_Policy_v6'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_range_ipv6'
+  rules:
+    - 'local:access_rules.rule_action_range_v6_ALLOW_ALL'
+
+#Access policy
+access_rules.rule_action_range_v6_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+advanced_access_policy.advanced_tab_eve_exempt_range_ipv6:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_range_v6'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_range_v6:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  showTLSStringInConnEvents: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 50
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRuleRangeIPv6"
+
+eve_exception_rule_list.eveExceptionRuleRangeIPv6:
+  destinationNetwork: "local:rule_networks_fragment.dest_range_ipv6"
+  comments: "network object"
+
+rule_networks_fragment.dest_range_ipv6:
+  objects:
+    - 'local:networks.dest_range_ipv6_object'
+
+networks.dest_range_ipv6_object:
+  name: 'dest_range_v6_obj_172'
+  type: "Range"
+  value: "2001:1::2:101-2001:1::2:109"
+  overridable: false
+  description: "Created automatically from REST API"
+
+
+########################################################################################################################################################################################
+
+access_policies.EVE_block_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_blocking_Policy'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_block'
+  rules:
+    - 'local:access_rules.rule_action_block_ALLOW_ALL'
+
+#Access policy
+access_rules.rule_action_block_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+advanced_access_policy.advanced_tab_eve_block:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_block'
+
+eve_settings.enable_all_the_combinations_with_eve_block:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  showTLSStringInConnEvents: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 50
+##############################################################################################################################################################################################
+
+purge.data_purge:
+  rna_flow_stats: true
+  rna_flow_stats_prioritized: true
+  flow_chunk: true
+  rna_event: true
+  rna_ip_host: false
+  rua_event: true
+  user_identities: false
+
+logging.simple_logging:
+  beginning: 1
+  dc: 1
+  end: 1
+
+################## HA Configuration Section ######################
+
+ftd_ha.ftdha_global_domain:
+  name: HA-Global-Domain
+  isEncryptionEnabled: true
+  encKeyGenerationScheme: CUSTOM
+  sharedKey: cisco123
+  useSameLinkForFailovers: true
+  lanFailover: 'local:failover.lanFailover_global_domain_devel'
+  statefulFailover: 'local:failover.statefulFailover_global_domain_devel'
+  _polling_delay_between_steps: 60
+  _polling_max_timeout: 800
+
+failover.lanFailover_global_domain_devel:
+  activeIP: 172.16.0.100
+  logicalName: LAN-INTERFACE
+  standbyIP: 172.16.0.101
+  subnetMask: 255.255.255.0
+  useIPv6Address: false
+
+failover.statefulFailover_global_domain_devel:
+  activeIP: 172.16.0.100
+  logicalName: STATEFUL-INTERFACE
+  standbyIP: 172.16.0.101
+  subnetMask: 255.255.255.0
+  useIPv6Address: false
+
+
+##################################### AC POLICY for IFR_CSCwj05620 #########################################
+access_policies.access_policy_IFR_CSCwj05620:
+  defaultAction: 'local:access_policy_default_action.block'
+  name: 'AC_Policy_IFR_CSCwj05620'
+  advanced: 'local:advanced_access_policy.advanced_tab_IFR_CSCwj05620'
+  rules:
+    - "local:access_rules.IFR_CSCwj05620"
+advanced_access_policy.advanced_tab_IFR_CSCwj05620:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_IFR_CSCwj05620'
+
+access_rules.IFR_CSCwj05620:
+  action: "ALLOW"
+  enabled: true
+  name: "eve_access_rule_IFR_CSCwj05620"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+
+eve_settings.enable_all_the_combinations_IFR_CSCwj05620:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 85
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRuleList_IFR_CSCwj05620"
+
+eve_exception_rule_list.eveExceptionRuleList_IFR_CSCwj05620:
+  comments: "network object and process"
+  processNameList:
+    - "generic dmz process"
+
+
+############################################################################################################
+
+access_policies.access_policy_IFR_CSCwj12669:
+  defaultAction: 'local:access_policy_default_action.block'
+  name: 'AC_Policy_IFR_CSCwj12669'
+  advanced: 'local:advanced_access_policy.advanced_tab_IFR_CSCwj12669'
+  rules:
+    - "local:access_rules.IFR_CSCwj12669"
+advanced_access_policy.advanced_tab_IFR_CSCwj12669:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_IFR_CSCwj12669'
+
+access_rules.IFR_CSCwj12669:
+  action: "ALLOW"
+  enabled: true
+  name: "eve_access_rule_IFR_CSCwj12669"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+
+eve_settings.enable_all_the_combinations_IFR_CSCwj12669:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 85
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRuleList1"
+    - "local:eve_exception_rule_list.eveExceptionRuleList2"
+
+eve_exception_rule_list.eveExceptionRuleList1:
+  comments: "Process name 1"
+  processNameList:
+    - "generic dmz process"
+
+eve_exception_rule_list.eveExceptionRuleList2:
+  comments: "Process name 2"
+  processNameList:
+    - "generic dmz process"
+
+##########################################################################################################################################################
+access_policies.EVE_exempt_host_lsp_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  type: 'AccessPolicy'
+  name: 'EVE_exempt_host_lsp_policy'
+  advanced: 'local:advanced_access_policy.advanced_tab_eve_exempt_host_lsp_policy'
+  rules:
+    - 'local:access_rules.rule_action_host_lsp_ALLOW_ALL'
+
+#Access policy
+access_rules.rule_action_host_lsp_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+
+advanced_access_policy.advanced_tab_eve_exempt_host_lsp_policy:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_with_eve_exempt_host_lsp_policy'
+
+eve_settings.enable_all_the_combinations_with_eve_exempt_host_lsp_policy:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  showTLSStringInConnEvents: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 50
+  eveExceptionRuleList:
+    - "local:eve_exception_rule_list.eveExceptionRuleHostLSP"
+
+eve_exception_rule_list.eveExceptionRuleHostLSP:
+  destinationNetwork: "local:rule_networks_fragment.literals_lsp"
+  comments: "network host object"
+
+rule_networks_fragment.literals_lsp:
+    literals:
+    - value: '2001:1::2:109'
+
+
+
+############################################################################################################
+
+EVE_test_cases:
+  Exception_with_TSID_enabled:
+    description: "Exception rule with a TSID enabled"
+    dst_object: "172.16.2.0"
+    pcap_file: "mitreblockpcap.pcap"
+  SSl_with_QUIC:
+    description: "ssl_policy_with_QUIC_Enabled"
+    dst_object: "malware-adware"
+    pcap_file: "malware.pcap"
+  SSl_QUIC_disable:
+    description: "ssl_policy_without_QUIC"
+    dst_object: "malware-adware"
+    pcap_file: "malware.pcap"
+  Getting_field_value:
+    description: "Getting_field_value"
+  Exception_with_Destination_IP:
+    description: "Exception rule with a Destination host IP"
+    dst_object: "172.16.2.2"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+  Exception_with_Destination_IP_network:
+    description: "Exception rule with a destination network"
+    dst_object: "172.16.2.0"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+  Exception_with_Destination_IP_range:
+    description: "Exception rule with a destination ip range"
+    dst_object: "172.16.2.2"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+  Exception_with_Destination_Process_name:
+    description: "Exception rule with a destination process name"
+    dst_object: "malware-unknown"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+  VDB_Downgrade:
+    description: "Downgrade VDB"
+    dst_object: "172.16.2.2"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+  VDB_Upgrade:
+    description: "Upgrade VDB"
+    dst_object: "172.16.2.2"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+  Fragmented_traffic:
+    description: "Exception rule with Fragmented traffic"
+    dst_object: "172.16.2.2"
+    pcap_file: "output_fragmented11.pcap"
+  Exception_with_Destination_IPv6:
+    description: "Exception rule with a Destination host IPv6"
+    dst_object: "2001:1::2:109"
+    pcap_file: "v6_filtered.pcap"
+  Exception_with_Destination_IPv6_network:
+    description: "Exception rule with a IPv6 destination network"
+    dst_object: "2001:1::2"
+    pcap_file: "v6_filtered.pcap"
+  Exception_with_Destination_IPv6_range:
+    description: "Exception rule with a destination ip range"
+    dst_object: "2001:1::2"
+    pcap_file: "v6_filtered.pcap"
+    Exception_with_snort_toggle:
+    description: "Exception rule with snort toggle"
+    dst_object: "172.16.2.2"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+  Exception_with_HA_switch_over:
+    description: "Exception_with_HA_switch_over"
+    dst_object: "172.16.2.2"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+  Exception_with_HA_break_reform:
+    description: "Exception_with_HA_break_reform"
+    dst_object: "2001:1::2"
+    pcap_file: "v6_filtered.pcap"
+  IFR_CSCwj05620:
+    description: "Automation for CSCwj05620 - Allow whitespace in process name"
+  IFR_CSCwj12669:
+    description: "Automation for CSCwj12669 - Adding the duplicate exception rule"
+  LSB_Update:
+    description: "LSP Downgrade/Upgrade"
+    dst_object: "2001:1::2"
+    pcap_file: "v6_filtered.pcap"
+
+
+EVE_precommit_test_cases:
+  Getting_field_value:
+    description: "Getting_field_value"
+  Exception_with_Destination_IP:
+    description: "Exception rule with a Destination host IP"
+    dst_object: "172.16.2.2"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+  Exception_with_Destination_IP_network:
+    description: "Exception rule with a destination network"
+    dst_object: "172.16.2.0"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+  Exception_with_Destination_IP_range:
+    description: "Exception rule with a destination ip range"
+    dst_object: "172.16.2.2"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+  Exception_with_Destination_Process_name:
+    description: "Exception rule with a destination process name"
+    dst_object: "malware-unknown"
+    pcap_file: "2019-12-10-Hancitor-infection-with-Ursnif-and-Cobalt-Strike_REWRITE.pcap"
+  Exception_with_Destination_IPv6:
+    description: "Exception rule with a Destination host IPv6"
+    dst_object: "2001:1::2:109"
+    pcap_file: "v6_filtered.pcap"
+  Exception_with_Destination_IPv6_network:
+    description: "Exception rule with a IPv6 destination network"
+    dst_object: "2001:1::2"
+    pcap_file: "v6_filtered.pcap"
+  Exception_with_Destination_IPv6_range:
+    description: "Exception rule with a destination ip range"
+    dst_object: "2001:1::2"
+    pcap_file: "v6_filtered.pcap"
