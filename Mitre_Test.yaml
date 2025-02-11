@@ -1,0 +1,409 @@
+git_info:
+  clone_url: 'https://bitbucket-eng-bgl1.cisco.com/bitbucket/scm/ftd_test_bgl/eve_test_pcaps.git'
+  clone_branch: 'master'
+security_zones.int_security_zones5:
+  name: 'Inside-Zone'
+  interfaceMode: 'ROUTED'
+  overridable: true
+security_zones.int_security_zones6:
+  name: 'Outside-Zone'
+  interfaceMode: 'ROUTED'
+  overridable: true
+inline_set.test_rest_inlineset:
+  name: 'my_rest_inlineset'
+  mtu: 1500
+smart_license.token_value:
+  token: 'YWQ1Y2ZkMmEtMzVjYS00OTkxLWEwYzItZjJhOWUzOTU3YzVhLTE3MzIxNzAx%0ANzg2MjJ8UExMQk9ZaXJHRFd6bjR1eGVYTjFaTHlTRTZ6NmY2TDJxbEE0Vnl5%0AeGJkMD0%3D%0A'
+  cisco_success_network: 1
+  cisco_support_diagnostics: 1
+access_policy_default_action.block:
+  action: 'BLOCK'
+
+################# AC policy with EVE Enabled for Encrypted dns Tag Verification #################
+access_policies.Encrypted_dns_AC_Policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  name: 'AC_Policy_encrypted_dns'
+  advanced: 'local:advanced_access_policy.advanced_tab_encrypted_dns'
+  rules:
+    - "local:access_rules.encrypted_dns"
+  base_policy: None
+advanced_access_policy.advanced_tab_encrypted_dns:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations_encrypted_dns'
+access_rules.encrypted_dns:
+  action: 'ALLOW'
+  enabled: true
+  name: "eve_access_rule"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+
+################# AC policy with EVE Enabled for Mitre Tag Verification #################
+access_policies.Mitre_Tag_AC_Policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  name: 'AC_Policy_mitre'
+  advanced: 'local:advanced_access_policy.advanced_tab_mitre_tag'
+  rules:
+    - "local:access_rules.mitre_tag"
+  base_policy: None
+advanced_access_policy.advanced_tab_mitre_tag:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations'
+access_rules.mitre_tag:
+  action: 'ALLOW'
+  enabled: true
+  name: "eve_access_rule"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+################## AC Policy with EVE Enabled for VDB upgrade/downgrade ###################
+access_policies.upgrade_downgrade_AC_Policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  name: 'AC_policy_upgrade'
+  advanced: 'local:advanced_access_policy.advanced_tab_enable_EVE_upgrade'
+  rules:
+    - "local:access_rules.up_down"
+  base_policy: None
+advanced_access_policy.advanced_tab_enable_EVE_upgrade:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations'
+access_rules.up_down:
+  action: 'ALLOW'
+  enabled: true
+  name: "eve_access_rule"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+################## AC Policy with EVE Enabled and Intrusion policy ###################
+access_policies.EVE_Enabled_AC_Policy_Intrusion_Policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  name: 'ac_Test_Intrusion_AC_policy'
+  rules:
+    - "local:access_rules.intrusion"
+  advanced: 'local:advanced_access_policy.advanced_tab_enable_EVE_Intrusion_policy'
+  base_policy: None
+advanced_access_policy.advanced_tab_enable_EVE_Intrusion_policy:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations'
+access_rules.intrusion:
+  action: 'ALLOW'
+  enabled: true
+  name: "eve_access_rule"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+################## AC Policy with EVE Enabled and File policy ###################
+access_policies.EVE_Enabled_AC_Policy_File_Policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  name: 'ac_Test_File_AC_policy'
+  rules:
+    - "local:access_rules.file"
+  base_policy: None
+  advanced: 'local:advanced_access_policy.advanced_tab_enable_EVE_File_policy'
+advanced_access_policy.advanced_tab_enable_EVE_File_policy:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations'
+access_rules.file:
+  action: 'ALLOW'
+  enabled: true
+  name: "eve_access_rule"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+#######################################################################################
+intrusion_policy.simple_policy:
+  name: 'Simple IPS policy'
+  base_policy: 'local:intrusion_policy.system_balanced_policy'
+intrusion_policy.system_balanced_policy:
+  name: 'Balanced Security and Connectivity'
+  _server_entity: True
+  _undeletable: True
+file_policy.simple_file_policy:
+  name: "Simple File Policy"
+  description: "Simple File Policy Description"
+  rules:
+    - "local:file_rule.simple_rule"
+  advanced: "local:file_advanced.file_advanced"
+file_advanced.file_advanced:
+  archiveDepth: 3
+file_rule.simple_rule:
+  protocol: "any"
+  direction: "any"
+  action: "Detect Files"
+  file_types:
+    - "7Z"
+################# AC Policy with VDB Upgrade and Downgrade ###################
+access_policies.VDB_Access_Policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  name: 'AC_policy_VDB_policy'
+  rules:
+    - "local:access_rules.vdb_access_rule"
+  advanced: 'local:advanced_access_policy.advanced_tab_vdb_access_policy'
+advanced_access_policy.advanced_tab_vdb_access_policy:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations'
+access_rules.vdb_access_rule:
+  action: 'ALLOW'
+  enabled: true
+  name: "eve_access_rule"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+################## AC Policy with EVE Enabled and Disabled ###################
+access_policies.EVE_Enabled_AC_Policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  name: 'AC_policy_Eve_Enable'
+  advanced: 'local:advanced_access_policy.advanced_tab_enable_EVE'
+  rules:
+    - "local:access_rules.enable_disable_EVE"
+  base_policy: None
+advanced_access_policy.advanced_tab_enable_EVE:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations'
+  tls_server_settings: 'local:tls_server_settings.enable_tsid'
+tls_server_settings.enable_tsid:
+  inherit: True
+  certVisibility: True
+access_rules.enable_disable_EVE:
+  action: "ALLOW"
+  enabled: true
+  name: "Rule"
+  sendEventsToFMC: false
+  logFiles: false
+  logBegin: false
+  logEnd: false
+################## AC Policy with SI_enrichment and EVE ###################
+access_policies.SI_Enabled_AC_Policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  name: 'AC_policy_SI_Eve_Enable'
+  advanced: 'local:advanced_access_policy.advanced_tab_enable_EVE_SI'
+  security_intelligence: 'local:security_intelligence.si'
+  rules:
+    - "local:access_rules.rule_with_url"
+  base_policy: None
+advanced_access_policy.advanced_tab_enable_EVE_SI:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations'
+access_rules.rule_with_url:
+  action: "ALLOW"
+  enabled: true
+  name: "Rule"
+  sendEventsToFMC: false
+  logFiles: false
+  logBegin: false
+  logEnd: false
+security_intelligence.si:
+  urlBlackList:
+    - 'local:security_intelligence_url.url_block_entry'
+security_intelligence_url.url_block_entry:
+  siUrl: 'local:url_object.url_block'
+url_object.url_block:
+  overridable: false
+  name: 'url_block_surshark-new_1'
+  url: 'https://ux.surfshark.com'
+################## AC Policy with EVE Flow Allow and Block ###################
+access_policies.EVE_Enabled_Flow_Allow_Block:
+  defaultAction: 'local:access_policy_default_action.block'
+  name: 'AC_policy_Flow_Allow'
+  advanced: 'local:advanced_access_policy.advanced_tab_enable_EVE_Flow_Allow_Block'
+  rules:
+    - "local:access_rules.enable_disable_EVE_Flow_Allow_Block"
+  base_policy: None
+advanced_access_policy.advanced_tab_enable_EVE_Flow_Allow_Block:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations'
+access_rules.enable_disable_EVE_Flow_Allow_Block:
+  action: "ALLOW"
+  enabled: true
+  name: "eve_access_rule-testing"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+################## AC Policy with EVE Enabled with BLOCK APPID ###################
+access_policies.EVE_Enabled_APP_BLOCK:
+  defaultAction: 'local:access_policy_default_action.block'
+  name: 'AC_policy_Block_AppID'
+  advanced: 'local:advanced_access_policy.advanced_tab_enable_EVE_APP_BLOCK'
+  rules:
+    - "local:access_rules.enable_disable_EVE_APP_BLOCK"
+    - "local:access_rules.enable_disable_EVE_APP_BLOCK1"
+  base_policy: None
+advanced_access_policy.advanced_tab_enable_EVE_APP_BLOCK:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations'
+access_rules.enable_disable_EVE_APP_BLOCK:
+  action: "BLOCK"
+  enabled: true
+  name: "eve_access_rule-testing"
+  sendEventsToFMC: true
+  logBegin: true
+  category_name: "Mandatory"
+  applications: 'local:access_rule_applications.applications'
+access_rule_applications.applications:
+  applications: [ 'local:application.SurfShark' ]
+application.SurfShark:
+  name: 'SurfShark'
+  _server_entity: True
+access_rules.enable_disable_EVE_APP_BLOCK1:
+  action: "ALLOW"
+  enabled: true
+  name: "eve_access_rule-testing1"
+  sendEventsToFMC: true
+  logBegin: true
+  category_name: "Mandatory"
+################## AC Policuy with EVE Enabled with TRUST APPID ###################
+access_policies.EVE_Enabled_TRUST_APPID:
+  defaultAction: 'local:access_policy_default_action.block'
+  name: 'AC_policy_Trust_AppID'
+  advanced: 'local:advanced_access_policy.advanced_tab_enable_EVE_APPID'
+  rules:
+    - "local:access_rules.enable_disable_EVE_APPID"
+  base_policy: None
+advanced_access_policy.advanced_tab_enable_EVE_APPID:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations'
+access_rules.enable_disable_EVE_APPID:
+  action: "TRUST"
+  enabled: true
+  name: "eve_access_rule-testing"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+  applications: 'local:access_rule_applications.applications'
+################## AC Policy With SSl Policy and EVE Enabled ###################
+access_policies.SSL_Ac_Policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  name: 'AC_Policy_SSL_Policy'
+  advanced: 'local:advanced_access_policy.advanced_tab_enable_disable_EVE'
+  rules:
+    - "local:access_rules.ssl"
+  base_policy: None
+advanced_access_policy.advanced_tab_enable_disable_EVE:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations'
+  ssl_policy_settings: 'local:ssl_policy_settings.ssl_policy_settings'
+access_rules.ssl:
+  action: "ALLOW"
+  enabled: true
+  name: "eve_access_rule-testing"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+################## AC Policy With SRU and EVE Enabled ###################
+access_policies.SRU_Ac_Policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  name: 'AC_policy_SRU_Eve_Enable'
+  advanced: 'local:advanced_access_policy.advanced_tab_enable_disable_EVE_SRU'
+  rules:
+    - "local:access_rules.enable_disable_EVE_SRU"
+  base_policy: None
+advanced_access_policy.advanced_tab_enable_disable_EVE_SRU:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations'
+access_rules.enable_disable_EVE_SRU:
+  action: "ALLOW"
+  enabled: true
+  name: "eve_access_rule-testing"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+################## AC Policy Backup and Restore ###################
+access_policies.Backup_restore_AC_policy:
+  defaultAction: 'local:access_policy_default_action.block'
+  name: 'AC_policy_Backup_Restore'
+  advanced: 'local:advanced_access_policy.advanced_tab_enable_disable_EVE_B_R'
+  rules:
+    - "local:access_rules.enable_disable_EVE_SRU"
+  base_policy: None
+advanced_access_policy.advanced_tab_enable_disable_EVE_B_R:
+  eve_settings: 'local:eve_settings.enable_all_the_combinations'
+  tls_server_settings: 'local:tls_server_settings.enable_tsid'
+access_rules.enable_disable_EVE_B_R:
+  action: "ALLOW"
+  enabled: true
+  name: "eve_access_rule-testing"
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+  category_name: "Mandatory"
+###### EVE enable Configs ######
+eve_settings.enable_all_the_combinations:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  showTLSStringInConnEvents: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 65
+
+enable_all_the_combinations_encrypted_dns:
+  tlsFingerprint: True
+  assignClientApplnsToProcess: True
+  showTLSStringInConnEvents: True
+  blockTrafficOnEveScore: True
+  blockTrafficAdvMode: True
+  blockThreshold: 18
+
+ssl_policy_settings.ssl_policy_settings:
+  sslPolicy: 'local:ssl_policy.ssl_policy'
+ssl_policy.ssl_policy:
+  name: 'Mitre_ssl_policy'
+  description: 'SSL policy created via automation'
+  encryption: 'do_not_decrypt'
+  rules: ['local:ssl_rule.ssl_rule']
+  logging: 'local:logging.ssl_policy_log_end_of_connection'
+logging.ssl_policy_log_end_of_connection:
+  end: 1
+  dc: 1
+ssl_rule.ssl_rule:
+  name: 'mitre_ssl_rule'
+  action: 'decrypt_resign'
+  decryption_certs: [ 'local:internal_ca_generate_certificate.generated_internal_ca' ]
+  logging: 'local:logging.ssl_policy_log_end_of_connection'
+internal_ca_generate_certificate.generated_internal_ca:
+  name: 'MitreSelfSignedCA'
+  description: 'Internal CA created by automation'
+  type: 'PKI_InternalCA'
+  subject_country: 'US'
+  subject_state: 'TX'
+  subject_locality: 'Austin'
+  subject_org: 'Cisco'
+  subject_ou: 'QA'
+  subject_cn: 'Test'
+  imported: '1'
+################## HA Configuration Section ######################
+ftd_ha.ftdha_global_domain:
+  name: HA-Global-Domain
+  isEncryptionEnabled: true
+  encKeyGenerationScheme: CUSTOM
+  sharedKey: cisco123
+  useSameLinkForFailovers: true
+  lanFailover: 'local:failover.lanFailover_global_domain_devel'
+  statefulFailover: 'local:failover.statefulFailover_global_domain_devel'
+  _polling_delay_between_steps: 60
+  _polling_max_timeout: 800
+failover.lanFailover_global_domain_devel:
+  activeIP: 172.16.0.100
+  logicalName: LAN-INTERFACE
+  standbyIP: 172.16.0.101
+  subnetMask: 255.255.255.0
+  useIPv6Address: false
+failover.statefulFailover_global_domain_devel:
+  activeIP: 172.16.0.100
+  logicalName: STATEFUL-INTERFACE
+  standbyIP: 172.16.0.101
+  subnetMask: 255.255.255.0
+  useIPv6Address: false
+purge.data_purge:
+  rna_flow_stats: true
+  rna_flow_stats_prioritized: true
+  flow_chunk: true
+  rna_event: true
+  rna_ip_host: false
+  rua_event: true
+  user_identities: false
+Dummy_Access_Policy_Rule_Data:
+  acl_rule_count: 5
+  acl_name_prefix: 'acl_dummy_rule'
+  action: 'ALLOW'
+  block_action: 'BLOCK'
+  sendEventsToFMC: 'true'
+  enabled: 'true'
+  logBegin: 'true'
+  logEnd: 'true'
