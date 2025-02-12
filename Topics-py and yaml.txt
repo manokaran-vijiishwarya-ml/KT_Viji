@@ -1,0 +1,316 @@
+PYTHON
+370
+398
+477 assert
+426 yaml and py
+472 snort
+same test case for diff case and sometimes diff one
+882
+
+
+
+
+eve util files()
+
+assert and lambda keyword
+
+threat score & process name-> fmc
+
+
+.yaml file will sync from model file attributes used in yaml file will be in python file
+for each config in python file yaml config must present
+config details and test case inf in yaml file
+
+TEST CASE STEPS:
+create ac policy 
+checks dns host address
+verify the rules(exempt.rules) file is present
+Application debug
+Pcap replay
+verify fingerprints
+snort counter
+
+steps vary sometime as per testcase name
+
+
+log.info vs self.fail
+log.info -> msg print
+self.fail ->testcase fail
+ret_val -> sometimes we need to pass the test case and sometimes it need to be failed
+
+
+threat score -> 5
+0 1 2 3 4
+very low
+low
+medium
+high
+very high
+
+
+endpoint-> device
+sensors -> ftd with ssh
+
+
+
+
+
+Section & Purpose
+Setup (CommonSetup)	Prepares environment (connect devices, load config)
+Testcases (Testcase)	Runs actual test logic (checks system behavior)
+Cleanup (CommonCleanup)	Cleans up after tests (disconnect devices, remove files)
+
+
+
+MTU-Maximum Transmission Unit
+Ethernet = 1500 bytes
+
+
+
+
+
+
+
+
+
+Eve_utils.py
+73 and 78
+136
+196
+206
+215
+403
+434
+
+
+1-CREATE AC POLICY
+create ac policy is created and deployed to target device ftd using fmc deployment will also be done
+
+Creates a PolicyAssignment object.
+Sets the target (ftd) and assigns the created access policy (ac_policy).
+Calls api_service_fmc.create(ac_policy_assignment) to assign the policy to the FTD.
+If successful, logs:
+✅ "Successfully assigned AC policy to the FTD"
+
+Step	Action	Description
+1️⃣	Create AC policy	Calls api_service_fmc.create(access_policy_config)
+2️⃣	Assign policy to FTD	Uses PolicyAssignment()
+3️⃣	Deploy changes	Calls self.deploy_all(api_service_fmc, ftd)
+4️⃣	Handle errors	Logs the error and returns False
+
+
+2-verify Rule file -> dst obj present or not (exempt.rule)
+3-enabling app debug -> traffic validation
+		      Start system support debug and initiate traffic
+		      client ip port and server ip and port
+4-pcap replay -> clear snort counters and connection see the traffic
+5-verify fingerprints -> http tls quic
+6-verify snort counter -> if there is any traffic it will get incremented
+7-validation of unified events -> veriy exempted events
+				use polling step and timeout
+timeout -> it will repetedly loop until it become suceess or else it will wait till timeout time if it is not success then after that timeout time it will give error msg
+
+
+CREATE HIGH AVAILABILITY
+HA setup for ftd using fmc is to identify primary and secondary devices and to config HA links then deploying HA config
+uses fmc.create_ac_policy.findone -> to find primary and secondary devices ip address
+Interface here are used for HA communication
+Interface lanfailover and statefulfailover on  primary device and uses testbed config to locate correct interface
+Assigns primary and secondary devices info to ftdha_ipv4
+Create HA and send it for deployment
+FInd the task status
+uses ASSERT in except so that success msg when it suceesfully get passed
+if any error then breaks HA and rollbacks
+
+CREATE MULTIPLE RULES
+Yaml file date :
+access_rules.rule_action_block_ALLOW_ALL:
+  action: "ALLOW"
+  enabled: true
+  name: "EVE Rule Allow "
+  sendEventsToFMC: true
+  logBegin: true
+  logEnd: true
+Eve utils:
+ if file_action is None else EVE_test_cases_data['Dummy_Access_Policy_Rule_Data']['block_action'],
+                                    name=acl_rule_name,
+                                    sendEventsToFMC=EVE_test_cases_data['Dummy_Access_Policy_Rule_Data']['sendEventsToFMC'],
+                                    enabled=EVE_test_cases_data['Dummy_Access_Policy_Rule_Data']['enabled'],
+                                    logBegin=EVE_test_cases_data['Dummy_Access_Policy_Rule_Data']['logBegin'],
+                                    logEnd= EVE_test_cases_data['Dummy_Access_Policy_Rule_Data']['logEnd']
+                                    if file_action is None else "false",
+                                    insertAfter=1)
+
+DEPLOY ALL
+Using deployment request append to ftd devices.
+Again deploy( after deploy to ftd)
+
+CONFIGURE PHYSICAL INTERFACE
+Security zone not in py
+
+
+ENABLING APPLICATION DEBUG (traffic_validation)
+VERIFYING FINGERPRINTS(wget_validation)
+VERIFY SNORT COUNTER(show_snort_counters_eve_exempted)
+VALIDATION OF UNIFIED EVENTS(verify_exempted_events)
+
+
+
+
+
+275 why tls http quic alone checking
+This three keywords are called as protocols, we are sending traffic in the form of pcap rights, that pcap will have this protocol so after sending the traffic are searching for this keywords in our ftd senses it we will get this as output
+383
+421
+Application debug-452 in sourcenet.py file
+verifying fingerprint--215/266
+
+
+
+CommonEve()
+Some fn are repeating i.e in both EVE_utils and CommonEve()
+
+
+
+#########################################################################################################################################################################################
+
+EVE_ExclusionLList_HA_FQDN.py
+
+The purpose of using argparse in your script is to control which set of test cases (EVE_test_cases_data) should be used based on whether the --precommit flag is provided.
+
+our script likely runs different sets of test cases:
+Precommit Mode (--precommit is provided)
+Runs a specific subset of test cases before committing code.
+Uses EVE_test_cases_data['EVE_precommit_test_cases'].
+
+Regular Mode (--precommit is NOT provided)
+Runs all test cases.
+Uses EVE_test_cases_data['EVE_test_cases'].
+
+This makes args.precommit a string, not a boolean.
+You manually compare precommit == 'True', which can cause issues.
+args.precommit is True if provided and False if not.
+
+
+How This Helps?
+No Need for Manual String Checks
+
+Instead of checking if precommit == 'True', you simply do if args.precommit:.
+More Robust and Cleaner Code
+
+You avoid errors from user input like --precommit true or --precommit FALSE.
+Easier Command Execution
+
+
+CommonSetup class:
+1. Initializing Global Variables
+2. Getting the Testbed Information
+3. Connecting to FMC (Firepower Management Center)
+4. Establishing SSH Connections
+5. Configuring DNS Server on Endpoint2
+6. Setting up Secuity policy
+7. FMC API Authentication
+8. Preparing for EVE test cases
+
+Why is this code needed?
+Automated Test Setup - Prepares the test environment before executing automation scripts.
+Device Communication - Establishes connections with testbed devices via SSH and FMC API.
+Network Configurations - Ensures correct IPs, DNS settings, and security policies are applied.
+EVE Feature Testing - Sets up required rules and objects for testing Encrypted Visibility Engine.
+
+Inline set
+1. creating physical inline interface
+2. create inline set
+3. Deploy after switch pass
+4. create HA
+5. create pcap files
+
+
+Exception_with_Destination_FQDN_V4
+
+
+Creating platform settings:
+
+The platform settings policy is used to configure system-wide settings on FTD devices, such as:
+
+DNS settings (critical for FQDN-based exception handling)
+Logging and event management
+Interface and network configurations
+Threat defense policies
+Security settings and timeouts
+Since this test case validates an exception rule using an FQDN-based destination, it is essential to ensure that the FTD device has the correct platform settings before applying and testing the policy.
+
+
+
+903-Exception_with_Destination_FQDN_vdb_up or vdb_down
+987-Exception_with_remove_objects
+1031-EVE_fqdn_process_name_change_v4
+1355-Exception_with_import_export
+	export access policy-EVE
+
+switch_high_availability-EVE
+
+
+TSID:
+Aquilla replay is like pcap we are sending traffic
+we are using same pcap file in fmc 
+if the malware is not detected properly then we will check with some other cases
+
+Aquila_replay method:
+	Transfers PCAP files to endpoints.
+	Clears firewall (FTD) counters and connections.
+	Purges past logs/events.
+	Runs Aquila Replay on two endpoints.
+
+Snort toggle
+
+
+
+
+
+Diagram:
+
+1. Testing Device
+Sends malware packets for testing and validation.
+2. FMC (Firepower Management Center)
+Events Page: Displays events related to detected malware and threats.
+FMC Database: Stores and manages security-related data.
+Vulnerability Database (VDB): Maintains fingerprints for encrypted traffic analysis.
+Software Code: Acts as the central processing unit that interacts with different components.
+3. MITRE ATT&CK
+The MITRE ATT&CK framework is used for identifying known attack techniques.
+EVE sends requests to MITRE ATT&CK for threat validation and receives a response about attack patterns.
+4. Mercury
+Likely involved in processing requests related to encrypted session analysis.
+Works alongside the VDB to check for known vulnerabilities.
+5. Talos Team
+The Talos Team is Cisco’s threat intelligence unit that continuously updates malware records.
+EVE requests updated malware fingerprints and receives new signatures.
+
+
+How it works:
+
+Testing Device sends malware packets
+⬇
+FMC processes packets using its software code
+⬇
+It checks against the VDB (Vulnerability Database)
+⬇
+If needed, it queries MITRE ATT&CK to identify attack techniques
+⬇
+EVE fetches updated malware fingerprints from the Talos Team
+⬇
+Events Page displays results for visibility
+
+
+Key Takeaways:
+
+EVE operates without decrypting encrypted sessions while still identifying threats.
+VDB fingerprints help match encrypted traffic patterns to known threats.
+MITRE ATT&CK enhances threat intelligence by providing insights into known attack methods.
+Talos Team continuously updates the malware database to improve detection capabilities.
+
+
+
+
+
